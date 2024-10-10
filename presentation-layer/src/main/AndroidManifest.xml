@@ -3,7 +3,7 @@
 
     <application>
         <activity
-            android:name="com.example.presentation_layer.MainActivity"
+            android:name="com.example.presentation_layer.feature.chatacter.list.ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.com.example.app.TheRickAndMortyApp">

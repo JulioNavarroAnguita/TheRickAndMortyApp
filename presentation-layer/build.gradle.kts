@@ -2,7 +2,9 @@ plugins {
     id("kotlin-android")
     id("com.android.library")
     id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
+
 
 android {
     namespace = "com.example.presentation"
@@ -14,7 +16,6 @@ android {
 
     }
 
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -25,10 +26,12 @@ android {
     buildFeatures {
         compose = true
     }
+    kapt {
+        correctErrorTypes = true
+    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
     }
-
 }
 
 dependencies {
@@ -41,11 +44,34 @@ dependencies {
 
     // INTERCEPTOR
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
 
+    // Viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // Icons Material Design
+    implementation("androidx.compose.material:material-icons-extended:1.7.3")
+    implementation("androidx.compose.material:material:1.7.3")
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.8.2")
+
+    // For instrumentation tests
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
+
+    // For local unit tests
+    testImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    kaptTest("com.google.dagger:hilt-compiler:2.51.1")
+
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")
