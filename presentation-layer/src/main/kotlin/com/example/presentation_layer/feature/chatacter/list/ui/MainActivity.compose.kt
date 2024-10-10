@@ -1,5 +1,7 @@
 package com.example.presentation_layer.feature.chatacter.list.ui
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.Card
@@ -28,29 +31,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.domain_layer.model.CharacterBo
 import com.example.domain_layer.model.CharacterStatus
 import com.example.domain_layer.model.LocationBo
 import com.example.domain_layer.model.OriginBo
+import com.example.presentation_layer.ui.theme.Gray
 import com.example.presentation_layer.ui.theme.Green40
-import com.example.presentation_layer.ui.theme.Pink80
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
+import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
+@SuppressLint("ResourceType")
 @Composable
 fun ListScreen(
     characterList: List<CharacterBo>,
     onClickAction: (Map<CharacterStatus, Boolean>) -> Unit,
-    onClickItem: (Int) -> Unit
+    onClickItem: (Int) -> Unit,
+    onBackPressed: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .background(color = Color.White),
     ) {
+        MyAppBar("Listado") {
+            onBackPressed()
+        }
         ChipGroup(onClickAction)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -60,6 +71,25 @@ fun ListScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyAppBar(title: String, onNavigationClick: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                modifier = Modifier.padding(start = 16.dp),
+                text = title,
+                textAlign = TextAlign.Center,
+                fontSize = 28.sp,
+                style = MaterialTheme.typography.displayLarge
+            )
+        },
+        backgroundColor = White80, // Color de fondo de la TopAppBar
+        contentColor = White80,
+        elevation = 0.dp
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -97,7 +127,8 @@ fun Preview() {
             )
         ),
         onClickAction = { mapOf<CharacterStatus, Boolean>() },
-        onClickItem = {}
+        onClickItem = {},
+        onBackPressed = {}
     )
 }
 
@@ -201,9 +232,10 @@ fun ChipGroup(
                     onClickAction(stateMap)
                 },
                 colors = ChipDefaults.chipColors(
-                    backgroundColor = if (chipStates[index]) Pink80 else Green40,
+                    backgroundColor = if (chipStates[index]) Green40 else White80,
                     contentColor = Color.White
                 ),
+                border = BorderStroke(width = 1.dp, color = Gray),
                 modifier = Modifier.padding(4.dp)
             ) {
                 Text(label.toString())

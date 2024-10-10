@@ -3,6 +3,7 @@ plugins {
     id("com.android.library")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.0"
 }
 
 
@@ -57,6 +58,12 @@ dependencies {
     // Icons Material Design
     implementation("androidx.compose.material:material-icons-extended:1.7.3")
     implementation("androidx.compose.material:material:1.7.3")
+
+    implementation("androidx.ui:ui-layout:0.1.0-dev07")
+
+
+    // KotlinSerialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Use the latest version
     // Coil
     implementation("io.coil-kt:coil-compose:2.2.2")
     // Navigation
