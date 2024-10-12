@@ -183,7 +183,6 @@ fun ChipGroup(
         var selectedChipIndex by remember { mutableStateOf(-1) }
 
         val chipLabels = CharacterStatus.values()
-
         chipLabels.forEachIndexed { index, label ->
             FilterChip(
                 selected = selectedChipIndex == index,

@@ -89,7 +89,6 @@ fun HomeScreen(
     viewModel: CharacterListViewModel,
     navigateToCharacterDetail: (Int) -> Unit
 ) {
-    viewModel.fetchCharacterList()
     val state by viewModel.state.collectAsState()
     state.characterData?.characterList?.let { characterList ->
         ListScreen(

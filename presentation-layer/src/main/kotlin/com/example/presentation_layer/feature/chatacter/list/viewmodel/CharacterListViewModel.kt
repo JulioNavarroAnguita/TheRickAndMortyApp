@@ -25,7 +25,10 @@ class CharacterListViewModel @Inject constructor(
     private val _state = MutableStateFlow(CharacterListState())
     val state: StateFlow<CharacterListState> get() = _state.asStateFlow()
 
-    fun fetchCharacterList() {
+    init {
+        fetchCharacterList()
+    }
+    private fun fetchCharacterList() {
         viewModelScope.launch {
             fetchCharacterListUseCase.fetchCharacterList()
 //                .onStart {  }
@@ -38,7 +41,6 @@ class CharacterListViewModel @Inject constructor(
                                 it.copy(characterData = CharacterDataModel(characterList = result.data))
                             }
                         }
-
                         else -> {}
                     }
 
@@ -63,7 +65,9 @@ class CharacterListViewModel @Inject constructor(
 
                         }
                     }
-            } else fetchCharacterList()
+            } else {
+                fetchCharacterList()
+            }
 
         }
     }
