@@ -2,10 +2,10 @@ package com.example.presentation_layer.feature.chatacter.list.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain_layer.model.CharacterBo
-import com.example.domain_layer.model.CharacterStatus
-import com.example.domain_layer.usecase.FetchCharacterListUseCase
-import com.example.domain_layer.usecase.FilterCharacterListByStatusUseCase
+import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterStatus
+import com.example.domain_layer.usecase.character.FetchCharacterListUseCase
+import com.example.domain_layer.usecase.character.FilterCharacterListByStatusUseCase
 import com.example.domain_layer.utils.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +25,7 @@ class CharacterListViewModel @Inject constructor(
     private val _state = MutableStateFlow(CharacterListState())
     val state: StateFlow<CharacterListState> get() = _state.asStateFlow()
 
-    init {
-        fetchCharacterList() // TODO: cambiar del init provoca fugas
-    }
-
-    private fun fetchCharacterList() {
+    fun fetchCharacterList() {
         viewModelScope.launch {
             fetchCharacterListUseCase.fetchCharacterList()
 //                .onStart {  }
@@ -50,32 +46,24 @@ class CharacterListViewModel @Inject constructor(
         }
     }
 
-    fun onChipFilterAction(characterStatus: Map<CharacterStatus, Boolean>) {
-        val responses = mutableListOf<CharacterBo>()
+    fun onChipFilterAction(characterStatus: CharacterStatus) {
         viewModelScope.launch {
-            characterStatus.map { (status, state) ->
-                if (state) {
-                    filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(status.value.lowercase())
-                        .collect { result ->
-                            when (result) {
-                                is Either.Error -> {}
-                                is Either.Success -> {
-                                    responses.addAll(result.data)
+            if (characterStatus != CharacterStatus.ALL) {
+                filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(characterStatus.value.lowercase())
+                    .collect { result ->
+                        when (result) {
+                            is Either.Error -> {}
+                            is Either.Success -> {
+                                _state.update {
+                                    it.copy(characterData = CharacterDataModel(characterList = result.data))
                                 }
-
-                                else -> {}
-
                             }
+
+                            else -> {}
+
                         }
-                }
-            }
-            if (responses.isEmpty()) {
-                fetchCharacterList()
-            } else {
-                _state.update {
-                    it.copy(characterData = CharacterDataModel(characterList = responses.sortedBy { characterBo -> characterBo.id }))
-                }
-            }
+                    }
+            } else fetchCharacterList()
 
         }
     }

@@ -1,4 +1,4 @@
-package com.example.domain_layer.model
+package com.example.domain_layer.model.character
 
 data class ResultBo(
     val info: InfoBo,
@@ -24,7 +24,7 @@ data class OriginBo(
 
 data class CharacterBo(
     val created: String,
-    val episode: List<String>,
+    val episodes: List<String>,
     val gender: String,
     val id: Int,
     val image: String,
@@ -40,7 +40,8 @@ data class CharacterBo(
 enum class CharacterStatus(val value : String) {
     ALIVE("Alive"),
     DEAD("Dead"),
-    UNKNOWN("unknown");
+    UNKNOWN("unknown"),
+    ALL("All");
 }
 
 

@@ -1,12 +1,12 @@
-package com.example.data_layer.repository
+package com.example.data_layer.repository.character
 
-import com.example.data_layer.datasource.CharacterRemoteDataSource
-import com.example.data_layer.model.FailureDto
-import com.example.data_layer.model.characterDtoToBo
-import com.example.data_layer.model.characterListDtoToBo
-import com.example.data_layer.model.failureDtoToBo
-import com.example.domain_layer.model.CharacterBo
-import com.example.domain_layer.model.FailureBo
+import com.example.data_layer.datasource.character.CharacterRemoteDataSource
+import com.example.data_layer.model.character.FailureDto
+import com.example.data_layer.model.character.characterDtoToBo
+import com.example.data_layer.model.character.characterListDtoToBo
+import com.example.data_layer.model.character.failureDtoToBo
+import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.FailureBo
 import com.example.domain_layer.utils.CharacterRepository
 import com.example.domain_layer.utils.Either
 import javax.inject.Inject

@@ -1,8 +1,8 @@
-package com.example.data_layer.model
+package com.example.data_layer.model.character
 
 import com.google.gson.annotations.SerializedName
 
-data class ResultDto(
+data class CharacterResultDto(
     val info: InfoDto? = null,
     @SerializedName("results") val characterList: List<CharacterDto>? = null
 )

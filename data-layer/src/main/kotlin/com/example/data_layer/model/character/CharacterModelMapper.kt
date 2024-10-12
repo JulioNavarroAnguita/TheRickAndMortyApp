@@ -1,10 +1,10 @@
-package com.example.data_layer.model
+package com.example.data_layer.model.character
 
-import com.example.domain_layer.model.CharacterBo
-import com.example.domain_layer.model.CharacterStatus
-import com.example.domain_layer.model.FailureBo
-import com.example.domain_layer.model.LocationBo
-import com.example.domain_layer.model.OriginBo
+import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterStatus
+import com.example.domain_layer.model.character.FailureBo
+import com.example.domain_layer.model.character.LocationBo
+import com.example.domain_layer.model.character.OriginBo
 
 const val DEFAULT_STRING = "none"
 const val DEFAULT_INTEGER = -1
@@ -14,7 +14,7 @@ fun List<CharacterDto>.characterListDtoToBo() = map {
 
 fun CharacterDto.characterDtoToBo() = CharacterBo(
     created = created ?: DEFAULT_STRING,
-    episode = episode ?: listOf(),
+    episodes = episode ?: listOf(),
     gender = gender ?: DEFAULT_STRING,
     id = id ?: DEFAULT_INTEGER,
     image = image ?: DEFAULT_STRING,

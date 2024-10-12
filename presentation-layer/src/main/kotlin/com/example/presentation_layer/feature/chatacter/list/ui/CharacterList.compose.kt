@@ -1,11 +1,10 @@
 package com.example.presentation_layer.feature.chatacter.list.ui
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,20 +12,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Chip
-import androidx.compose.material.ChipDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,38 +39,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.domain_layer.model.CharacterBo
-import com.example.domain_layer.model.CharacterStatus
-import com.example.domain_layer.model.LocationBo
-import com.example.domain_layer.model.OriginBo
-import com.example.presentation_layer.ui.theme.Gray
+import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterStatus
+import com.example.domain_layer.model.character.LocationBo
+import com.example.domain_layer.model.character.OriginBo
 import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
 import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
-@SuppressLint("ResourceType")
 @Composable
 fun ListScreen(
     characterList: List<CharacterBo>,
-    onClickAction: (Map<CharacterStatus, Boolean>) -> Unit,
-    onClickItem: (Int) -> Unit,
-    onBackPressed: () -> Unit
+    onClickAction: (CharacterStatus) -> Unit,
+    onClickItem: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .background(color = Color.White),
+            .background(color = Color.White)
     ) {
-        MyAppBar("Listado") {
-            onBackPressed()
-        }
-        ChipGroup(onClickAction)
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        MyAppBar("Listado")
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            this.items(characterList) { character ->
-                StandardCard(character = character, onClickItem = onClickItem)
+            ChipGroup(onClickAction)
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                this.items(characterList) { character ->
+                    StandardCard(character = character, onClickItem = onClickItem)
+                }
             }
         }
     }
@@ -75,60 +78,19 @@ fun ListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAppBar(title: String, onNavigationClick: () -> Unit) {
+fun MyAppBar(title: String) {
     TopAppBar(
         title = {
             Text(
-                modifier = Modifier.padding(start = 16.dp),
                 text = title,
                 textAlign = TextAlign.Center,
                 fontSize = 28.sp,
                 style = MaterialTheme.typography.displayLarge
             )
         },
-        backgroundColor = White80, // Color de fondo de la TopAppBar
-        contentColor = White80,
-        elevation = 0.dp
-    )
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun Preview() {
-    ListScreen(
-        characterList = listOf(
-            CharacterBo(
-                created = "",
-                episode = listOf(),
-                gender = "Male",
-                id = 1,
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                location = LocationBo(name = "", url = ""),
-                name = "Rick",
-                origin = OriginBo(name = "Earth", url = ""),
-                species = "Human",
-                status = CharacterStatus.ALIVE,
-                type = "",
-                url = ""
-            ),
-            CharacterBo(
-                created = "",
-                episode = listOf(),
-                gender = "Male",
-                id = 1,
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                location = LocationBo(name = "Earth", url = ""),
-                name = "Morty",
-                origin = OriginBo(name = "Earth", url = ""),
-                species = "Human",
-                status = CharacterStatus.DEAD,
-                type = "",
-                url = ""
-            )
-        ),
-        onClickAction = { mapOf<CharacterStatus, Boolean>() },
-        onClickItem = {},
-        onBackPressed = {}
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = White80
+        )
     )
 }
 
@@ -137,8 +99,7 @@ fun Preview() {
 fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
@@ -148,10 +109,8 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp) // Ajusta la altura según lo necesites
+                .height(120.dp)
         ) {
-            // Imagen a la izquierda
             AsyncImage(
                 model = character.image,
                 contentDescription = null,
@@ -160,12 +119,9 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
                     .fillMaxHeight()
                     .weight(1f)
             )
-
-            // Columna con datos a la derecha
             Column(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(16.dp)
+                    .padding(8.dp)
                     .weight(2f) // Para que ocupe más espacio
             ) {
                 Text(
@@ -199,6 +155,7 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
                             CharacterStatus.ALIVE -> Green40
                             CharacterStatus.DEAD -> Red40
                             CharacterStatus.UNKNOWN -> PurpleGrey40
+                            CharacterStatus.ALL -> Green40
                         }
                     )
                     Text(
@@ -211,35 +168,79 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChipGroup(
-    onClickAction: (Map<CharacterStatus, Boolean>) -> Unit
+    onClickAction: (CharacterStatus) -> Unit
 ) {
-    val chipLabels = CharacterStatus.values()
-    val chipStates = remember { MutableList(chipLabels.size) { false } }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Transparent),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
+
+        var selectedChipIndex by remember { mutableStateOf(-1) }
+
+        val chipLabels = CharacterStatus.values()
+
         chipLabels.forEachIndexed { index, label ->
-            Chip(
+            FilterChip(
+                selected = selectedChipIndex == index,
+                leadingIcon = if (selectedChipIndex == index) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = "Done icon",
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null,
                 onClick = {
-                    chipStates[index] = !chipStates[index]
-                    val stateMap = chipLabels.zip(chipStates).toMap()
-                    onClickAction(stateMap)
+                    selectedChipIndex = index
+                    onClickAction(label)
                 },
-                colors = ChipDefaults.chipColors(
-                    backgroundColor = if (chipStates[index]) Green40 else White80,
-                    contentColor = Color.White
-                ),
-                border = BorderStroke(width = 1.dp, color = Gray),
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(label.toString())
-            }
+                label = { Text(label.value) }
+            )
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview() {
+    ListScreen(
+        characterList = listOf(
+            CharacterBo(
+                created = "",
+                episodes = listOf(),
+                gender = "Male",
+                id = 1,
+                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                location = LocationBo(name = "", url = ""),
+                name = "Rick",
+                origin = OriginBo(name = "Earth", url = ""),
+                species = "Human",
+                status = CharacterStatus.ALIVE,
+                type = "",
+                url = ""
+            ),
+            CharacterBo(
+                created = "",
+                episodes = listOf(),
+                gender = "Male",
+                id = 1,
+                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                location = LocationBo(name = "Earth", url = ""),
+                name = "Morty",
+                origin = OriginBo(name = "Earth", url = ""),
+                species = "Human",
+                status = CharacterStatus.DEAD,
+                type = "",
+                url = ""
+            )
+        ),
+        onClickAction = { mapOf<CharacterStatus, Boolean>() },
+        onClickItem = {}
+    )
 }

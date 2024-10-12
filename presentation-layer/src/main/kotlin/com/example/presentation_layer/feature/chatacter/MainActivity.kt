@@ -1,4 +1,4 @@
-package com.example.presentation_layer.feature.chatacter.list.ui
+package com.example.presentation_layer.feature.chatacter
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,8 +14,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
-        window.statusBarColor = Color.White.toArgb()
         setContent {
             RickAndMortyApp()
         }
