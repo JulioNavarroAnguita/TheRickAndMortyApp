@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,21 +58,31 @@ fun ListScreen(
 ) {
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(color = Color.White)
     ) {
-        MyAppBar("Listado")
+        MyAppBar("Character List")
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
         ) {
             ChipGroup(onClickAction)
             Spacer(modifier = Modifier.height(8.dp))
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                this.items(characterList) { character ->
-                    StandardCard(character = character, onClickItem = onClickItem)
-                }
-            }
+            BodyCharacterDetail(characterList = characterList, onClickItem = onClickItem)
+        }
+    }
+}
+
+@Composable
+fun BodyCharacterDetail(characterList: List<CharacterBo>, onClickItem: (Int) -> Unit) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(characterList) { character ->
+            StandardCard(character = character, onClickItem = onClickItem)
+        }
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -94,7 +105,6 @@ fun MyAppBar(title: String) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     Card(
@@ -168,7 +178,6 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChipGroup(
     onClickAction: (CharacterStatus) -> Unit

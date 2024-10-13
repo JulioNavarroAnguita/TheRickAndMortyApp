@@ -35,6 +35,11 @@ interface RickAndMortyService {
             @Path("array") list: List<Int>
         ): Response<List<EpisodeDto>>
 
+        @GET("character/{ids}")
+        suspend fun getMultipleCharacters(
+            @Path("ids") ids: String
+        ): Response<List<CharacterDto>>
+
         @GET("episode/{id}")
         suspend fun getEpisodeById(@Path(value = "id") id: Int): Response<EpisodeDto>
 

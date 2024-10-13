@@ -26,9 +26,9 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
         Either.Error(FailureDto.Unknown.failureDtoToBo())
     }
 
-    override suspend fun filterCharacterListByStatusUseCase(characterStatus: String) = try {
+    override suspend fun filterCharacterListByStatusUseCase(params: String) = try {
         val queryParams = mutableMapOf<String, String>()
-        queryParams["status"] = characterStatus
+        queryParams["status"] = params
         val response = characterRemoteDataSource.getCharactersFromServiceByFilter(filterOptions = queryParams)
         if (response.isSuccessful) {
             response.body()?.characterList?.characterListDtoToBo()?.let { characterList ->
@@ -49,6 +49,31 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
             } ?: run { Either.Error(FailureDto.UnexpectedFailure(code = response.code(), localizedMessage = response.message()).failureDtoToBo()) }
         } else {
             Either.Error(FailureDto.UnexpectedFailure(code = response.code(), localizedMessage = response.message()).failureDtoToBo())
+        }
+    } catch (e: Exception) {
+        Either.Error(FailureDto.Unknown.failureDtoToBo())
+    }
+
+    override suspend fun fetchCharacterListWithParams(path: String) = try {
+        val response = characterRemoteDataSource.getMultipleCharactersFromService(path)
+        if (response.isSuccessful) {
+            response.body()?.characterListDtoToBo()?.let { episodeList ->
+                Either.Success(data = episodeList)
+            } ?: run {
+                Either.Error(
+                    FailureDto.UnexpectedFailure(
+                        code = response.code(),
+                        localizedMessage = response.message()
+                    ).failureDtoToBo()
+                )
+            }
+        } else {
+            Either.Error(
+                FailureDto.UnexpectedFailure(
+                    code = response.code(),
+                    localizedMessage = response.message()
+                ).failureDtoToBo()
+            )
         }
     } catch (e: Exception) {
         Either.Error(FailureDto.Unknown.failureDtoToBo())

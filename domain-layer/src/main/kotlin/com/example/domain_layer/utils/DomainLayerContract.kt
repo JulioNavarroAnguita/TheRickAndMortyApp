@@ -6,8 +6,10 @@ import com.example.domain_layer.model.episode.EpisodeBo
 
 interface CharacterRepository {
     suspend fun fetchCharacters(): Either<FailureBo, List<CharacterBo>>
-    suspend fun filterCharacterListByStatusUseCase(characterStatus: String): Either<FailureBo, List<CharacterBo>>
+    suspend fun filterCharacterListByStatusUseCase(params: String): Either<FailureBo, List<CharacterBo>>
     suspend fun fetchCharacter(id: Int): Either<FailureBo, CharacterBo>
+    suspend fun fetchCharacterListWithParams(path: String): Either<FailureBo, List<CharacterBo>>
+
 }
 
 interface EpisodeRepository {

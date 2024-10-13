@@ -39,11 +39,7 @@ class CharacterDetailViewModel @Inject constructor(
                                 characterResult.data.episodes.map { episode ->
                                     numberOfEpisodeList.add(episode.split("/").last())
                                 }
-                                fetchEpisodeListUseCase.fetchEpisodeList(
-                                    numberOfEpisodeList.joinToString(
-                                        ","
-                                    )
-                                )
+                                fetchEpisodeListUseCase.fetchEpisodeList("[" + numberOfEpisodeList.joinToString(",") + "]")
                                     .collect { episodeListResult ->
                                         when (episodeListResult) {
                                             is Either.Error -> {}

@@ -3,7 +3,7 @@ plugins {
     id("com.android.library")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0" // o la versión que estés usando
+    id("org.jetbrains.kotlin.plugin.serialization") // o la versión que estés usando
     alias(libs.plugins.compose.compiler)
     id("kotlinx-serialization")
 }
@@ -71,6 +71,9 @@ dependencies {
     implementation(libs.coil.compose)
     // Navigation
     implementation(libs.navigation.compose)
+
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite")
+
 
     // For instrumentation tests
     androidTestImplementation(libs.google.hilt.android.testing)

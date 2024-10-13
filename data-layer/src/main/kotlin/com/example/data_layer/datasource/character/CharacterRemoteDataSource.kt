@@ -12,4 +12,7 @@ class CharacterRemoteDataSource @Inject constructor(private val characterService
     override suspend fun getCharacterFromService(id: Int) =
         characterService.getCharacterById(id = id)
 
+    override suspend fun getMultipleCharactersFromService(path: String) =
+        characterService.getMultipleCharacters(path)
+
 }
