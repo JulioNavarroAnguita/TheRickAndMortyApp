@@ -1,3 +1,5 @@
+@file:Suppress("PLUGIN_IS_NOT_ENABLED")
+
 package com.example.presentation_layer.navigation
 
 import DetailScreenView
@@ -15,6 +17,7 @@ import com.example.presentation_layer.feature.chatacter.detail.viewmodel.Charact
 import com.example.presentation_layer.feature.chatacter.list.ui.ListScreen
 import com.example.presentation_layer.feature.chatacter.list.viewmodel.CharacterListViewModel
 import com.example.presentation_layer.navigation.Navigation.CharacterDetail
+import com.example.presentation_layer.navigation.Navigation.EpisodeDetail
 import com.example.presentation_layer.navigation.Navigation.Home
 import com.example.presentation_layer.ui.theme.TheRickAndMortyAppTheme
 import kotlinx.serialization.Serializable
@@ -41,9 +44,6 @@ sealed interface Navigation {
 fun RickAndMortyNavGraph(
     navController: NavHostController = rememberNavController(),
 ) {
-//    val bottomSheetNavigator = rememberBottomSheetNavigator()
-//    val navController = rememberNavController(bottomSheetNavigator)
-//    ModalBottomSheetLayout(bottomSheetNavigator) {
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
             val characterListViewModel: CharacterListViewModel = hiltViewModel()
@@ -64,21 +64,10 @@ fun RickAndMortyNavGraph(
                     navController.navigate(Home)
                 },
                 onEpisodeClick = { episodeId ->
-//                        navController.navigate(EpisodeDetail(episodeId))
+                    navController.navigate(EpisodeDetail(episodeId))
                 }
             )
         }
-
-
-        /* bottomSheet<EpisodeDetail> { navBackStackEntry ->
-             val episodeId = requireNotNull(navBackStackEntry.toRoute<EpisodeDetail>().episodeId)
-             val characterDetailViewModel: CharacterDetailViewModel = hiltViewModel()
-             EpisodeDetailScreen(
-                 viewModel { characterDetailViewModel },
-                 episodeId = episodeId
-             )
-         }*/
-//        }
     }
 }
 
@@ -88,7 +77,7 @@ fun HomeScreen(
     navigateToCharacterDetail: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    state.characterData?.characterList?.let { characterList ->
+    state.characters?.let { characterList ->
         ListScreen(
             characterList = characterList,
             onClickAction = { characterStatus ->
@@ -103,23 +92,6 @@ fun HomeScreen(
     }
 }
 
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EpisodeDetailScreen(
-    viewModel: CharacterDetailViewModel,
-    episodeId: Int
-) {
-    viewModel.fetchEpisodeDetail(episodeId)
-    val state by viewModel.state.collectAsState()
-    state.episodeData?.let { episodeDataModel ->
-        ModalBottomSheet(onDismissRequest = {}) {
-            Text(text = episodeDataModel.episode!!.name)
-        }
-    }
-}
-*/
-
 @Composable
 fun DetailScreen(
     viewModel: CharacterDetailViewModel,
@@ -129,15 +101,13 @@ fun DetailScreen(
 ) {
     viewModel.fetchCharacterDetail(itemId)
     val state by viewModel.state.collectAsState()
-    state.characterData?.let { characterDataModel ->
-        DetailScreenView(
-            onBackPressed = {
-                onBackPressed()
-            },
-            characterDetailDataModel = characterDataModel,
-            onEpisodeClick = { episodeId ->
-                onEpisodeClick(episodeId)
-            }
-        )
-    }
+    DetailScreenView(
+        onBackPressed = {
+            onBackPressed()
+        },
+        characterDetailScreenState = state,
+        onEpisodeClick = { episodeId ->
+//                onEpisodeClick(episodeId) manejar bottomsheet
+        }
+    )
 }

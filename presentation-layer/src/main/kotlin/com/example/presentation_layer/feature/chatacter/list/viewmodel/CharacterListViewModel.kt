@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +24,7 @@ class CharacterListViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CharacterListState())
-    val state: StateFlow<CharacterListState> get() = _state.asStateFlow()
+    val state: StateFlow<CharacterListState> = _state.asStateFlow()
 
     init {
         fetchCharacterList()
@@ -31,14 +32,22 @@ class CharacterListViewModel @Inject constructor(
     private fun fetchCharacterList() {
         viewModelScope.launch {
             fetchCharacterListUseCase.fetchCharacterList()
-//                .onStart {  }
-//                .catch {  }
+                .onStart {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+                }
+//                .catch {  } manejar exception
                 .collect { result ->
                     when (result) {
-                        is Either.Error -> {}
+                        is Either.Error -> {
+                            _state.update {
+                                it.copy(error = "Error", isLoading = false) // manejar error
+                            }
+                        }
                         is Either.Success -> {
                             _state.update {
-                                it.copy(characterData = CharacterDataModel(characterList = result.data))
+                                it.copy(characters = result.data, isLoading = false)
                             }
                         }
                         else -> {}
@@ -52,12 +61,22 @@ class CharacterListViewModel @Inject constructor(
         viewModelScope.launch {
             if (characterStatus != CharacterStatus.ALL) {
                 filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(characterStatus.value.lowercase())
+                    .onStart {
+                        _state.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+//                .catch {  } manejar exception
                     .collect { result ->
                         when (result) {
-                            is Either.Error -> {}
+                            is Either.Error -> {
+                                _state.update {
+                                    it.copy(error = "Error", isLoading = false) // manejar error
+                                }
+                            }
                             is Either.Success -> {
                                 _state.update {
-                                    it.copy(characterData = CharacterDataModel(characterList = result.data))
+                                    it.copy(characters = result.data, isLoading = false)
                                 }
                             }
 
@@ -75,9 +94,7 @@ class CharacterListViewModel @Inject constructor(
 }
 
 data class CharacterListState(
-    val characterData: CharacterDataModel? = null,
-)
-
-data class CharacterDataModel(
-    val characterList: List<CharacterBo>
+    val characters: List<CharacterBo>? = null,
+    val isLoading: Boolean = true,
+    val error: String? = null
 )

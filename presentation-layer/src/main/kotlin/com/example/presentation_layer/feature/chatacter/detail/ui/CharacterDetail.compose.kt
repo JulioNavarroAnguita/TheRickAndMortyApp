@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,7 +49,7 @@ import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.LocationBo
 import com.example.domain_layer.model.character.OriginBo
 import com.example.domain_layer.model.episode.EpisodeBo
-import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailDataModel
+import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailScreenState
 import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.Pink80
 import com.example.presentation_layer.ui.theme.PurpleGrey40
@@ -59,44 +60,113 @@ import com.example.presentation_layer.ui.theme.purple
 @Composable
 fun DetailScreenView(
     onBackPressed: () -> Unit,
-    characterDetailDataModel: CharacterDetailDataModel,
+    characterDetailScreenState: CharacterDetailScreenState,
     onEpisodeClick: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        when (characterDetailScreenState) {
+            is CharacterDetailScreenState.Data -> DataScreen(
+                character = characterDetailScreenState.character,
+                episodeList = characterDetailScreenState.episodes,
+                onBackPressed = onBackPressed,
+                onEpisodeClick = onEpisodeClick
+            )
+
+            is CharacterDetailScreenState.Error -> ErrorScreen(message = characterDetailScreenState.message)
+            CharacterDetailScreenState.Loading -> LoadingScreen()
+        }
+    }
+}
+
+@Composable
+fun DataScreen(
+    character: CharacterBo?,
+    episodeList: List<EpisodeBo>?,
+    onBackPressed: () -> Unit,
+    onEpisodeClick: (Int) -> Unit
+) {
+    character?.let {
         HeaderDetail {
             onBackPressed()
         }
         Column(
             modifier = Modifier
+                .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            characterDetailDataModel.character?.let { character ->
-                BodyDetail(characterBo = character)
+            BodyDetail(character = character)
+            episodeList?.let { episodes ->
+                EpisodeCarousel(
+                    episodes = episodes,
+                    onEpisodeClick = onEpisodeClick
+                )
             }
-            FooterDetail(characterDetailDataModel = characterDetailDataModel) { episode ->
-                onEpisodeClick(episode)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            FooterDetail(character = character)
         }
+
     }
 }
 
+@Composable
+fun ErrorScreen(message: String?) {
+    message?.let {
+        Text(text = "Algo ha ido mal") // change to view with a emptyImagen
+    }
+}
+
+@Composable
+fun LoadingScreen() {
+    CircularProgressIndicator()
+}
+
+@Composable
+fun EpisodeCarousel(episodes: List<EpisodeBo>, onEpisodeClick: (Int) -> Unit) {
+    Text(
+        text = "Episodes",
+        style = MaterialTheme.typography.displayMedium
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    EpisodeList(episodes) { episodeId ->
+        onEpisodeClick(episodeId)
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeaderDetail(onBackPressed: () -> Unit) {
-    MyAppBar(title = "Character Detail") {
-        onBackPressed()
-    }
+    TopAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        title = {
+            Text(
+                text = "Character Detail",
+                textAlign = TextAlign.Center,
+                fontSize = 28.sp,
+                style = MaterialTheme.typography.displayLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = White80
+        )
+    )
 }
 
 @Composable
-fun BodyDetail(characterBo: CharacterBo) {
+fun BodyDetail(character: CharacterBo) {
     Column(
-        modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -104,15 +174,15 @@ fun BodyDetail(characterBo: CharacterBo) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = characterBo.name,
+                text = character.name,
                 style = MaterialTheme.typography.displayMedium
             )
             Icon(
-                imageVector = if (characterBo.gender == "Male") Icons.Default.Male else Icons.Default.Female,
+                imageVector = if (character.gender == "Male") Icons.Default.Male else Icons.Default.Female,
                 contentDescription = null,
                 modifier = Modifier
                     .size(30.dp),
-                tint = if (characterBo.gender == "Male") Green40 else Pink80
+                tint = if (character.gender == "Male") Green40 else Pink80
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -120,8 +190,8 @@ fun BodyDetail(characterBo: CharacterBo) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentWidth(Alignment.Start),
-            text = characterBo.status.value,
-            color = when (characterBo.status) {
+            text = character.status.value,
+            color = when (character.status) {
                 CharacterStatus.ALIVE -> Green40
                 CharacterStatus.DEAD -> Red40
                 CharacterStatus.UNKNOWN -> PurpleGrey40
@@ -130,76 +200,60 @@ fun BodyDetail(characterBo: CharacterBo) {
             style = MaterialTheme.typography.titleLarge
         )
         AsyncImage(
-            model = characterBo.image,
+            model = character.image,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(256.dp)
                 .clip(CircleShape)
-
         )
     }
 }
 
 @Composable
-fun FooterDetail(characterDetailDataModel: CharacterDetailDataModel, onEpisodeClick: (Int) -> Unit) {
+fun FooterDetail(character: CharacterBo) {
     Column(
-        modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        characterDetailDataModel.episodes?.let { episodes ->
-            Text(
-                text = "Episodes",
-                style = MaterialTheme.typography.displayMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            EpisodeList(episodes) {
-                onEpisodeClick(it)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        characterDetailDataModel.character?.let { character ->
-            Text(
-                text = "Origin",
-                color = purple,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = character.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "First Location",
-                color = purple,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = character.origin.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Last Location",
-                color = purple,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = character.location.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Species",
-                color = purple,
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = character.species,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
+        Text(
+            text = "Origin",
+            color = purple,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = character.name,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "First Location",
+            color = purple,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = character.origin.name,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Last Location",
+            color = purple,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = character.location.name,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Species",
+            color = purple,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = character.species,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
@@ -242,8 +296,7 @@ fun EpisodeItem(episode: EpisodeBo, onEpisodeClick: (Int) -> Unit) {
             VerticalDivider(
                 modifier = Modifier.padding(4.dp), color = MaterialTheme.colorScheme.secondary
             )
-            Column(
-            ) {
+            Column {
                 Text(
                     text = episode.name,
                     style = MaterialTheme.typography.titleMedium
@@ -264,7 +317,6 @@ fun MyAppBar(title: String, onNavigationClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         title = {
             Text(
-                modifier = Modifier.padding(start = 16.dp),
                 text = title,
                 textAlign = TextAlign.Center,
                 fontSize = 28.sp,
@@ -282,13 +334,12 @@ fun MyAppBar(title: String, onNavigationClick: () -> Unit) {
     )
 
 }
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Preview() {
+fun PreviewData() {
     DetailScreenView(
         onBackPressed = {},
-        characterDetailDataModel = CharacterDetailDataModel(
+        characterDetailScreenState = CharacterDetailScreenState.Data(
             character = CharacterBo(
                 created = "",
                 episodes = listOf(),
@@ -332,7 +383,6 @@ fun Preview() {
                     created = ""
                 )
             )
-        ),
-        onEpisodeClick = {}
+        ), onEpisodeClick = {}
     )
 }

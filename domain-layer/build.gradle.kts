@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     // Dagger Hilt
     implementation(libs.javax.inject)
+    implementation(libs.androidx.paging.common)
 
     testImplementation(libs.junit)
 

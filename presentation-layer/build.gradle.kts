@@ -3,7 +3,7 @@ plugins {
     id("com.android.library")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") // o la versión que estés usando
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     alias(libs.plugins.compose.compiler)
     id("kotlinx-serialization")
 }
@@ -51,6 +51,9 @@ dependencies {
 
     // Viewmodel
     implementation(libs.lifecycle.viewmodel.ktx)
+    // Paging3
+    implementation(libs.paging.compose)
+    implementation(libs.paging.runtime.ktx)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -67,6 +70,7 @@ dependencies {
     implementation(libs.material.icons.core)
     // KotlinSerialization
     implementation(libs.kotlinx.serialization.json) // Use the latest version
+
     // Coil
     implementation(libs.coil.compose)
     // Navigation
