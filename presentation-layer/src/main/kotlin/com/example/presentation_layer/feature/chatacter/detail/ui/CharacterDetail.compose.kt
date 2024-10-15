@@ -49,7 +49,9 @@ import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.LocationBo
 import com.example.domain_layer.model.character.OriginBo
 import com.example.domain_layer.model.episode.EpisodeBo
-import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailScreenState
+import com.example.presentation.R
+import com.example.presentation_layer.components.ErrorScreen
+import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailState
 import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.Pink80
 import com.example.presentation_layer.ui.theme.PurpleGrey40
@@ -59,9 +61,10 @@ import com.example.presentation_layer.ui.theme.purple
 
 @Composable
 fun DetailScreenView(
-    onBackPressed: () -> Unit,
-    characterDetailScreenState: CharacterDetailScreenState,
-    onEpisodeClick: (Int) -> Unit
+    onBackPressedAction: () -> Unit,
+    characterDetailState: CharacterDetailState,
+    onEpisodeClickAction: (Int) -> Unit,
+    onRefreshClickAction: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -70,16 +73,21 @@ fun DetailScreenView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        when (characterDetailScreenState) {
-            is CharacterDetailScreenState.Data -> DataScreen(
-                character = characterDetailScreenState.character,
-                episodeList = characterDetailScreenState.episodes,
-                onBackPressed = onBackPressed,
-                onEpisodeClick = onEpisodeClick
+        when (characterDetailState) {
+            is CharacterDetailState.Data -> DataScreen(
+                character = characterDetailState.character,
+                episodeList = characterDetailState.episodes,
+                onBackPressed = onBackPressedAction,
+                onEpisodeClick = onEpisodeClickAction
             )
 
-            is CharacterDetailScreenState.Error -> ErrorScreen(message = characterDetailScreenState.message)
-            CharacterDetailScreenState.Loading -> LoadingScreen()
+            is CharacterDetailState.Error -> ErrorScreen(
+                onRefreshClick = onBackPressedAction,
+                image = R.drawable.error,
+                message = R.string.error_message
+            )
+
+            CharacterDetailState.Loading -> CircularProgressIndicator()
         }
     }
 }
@@ -111,18 +119,6 @@ fun DataScreen(
         }
 
     }
-}
-
-@Composable
-fun ErrorScreen(message: String?) {
-    message?.let {
-        Text(text = "Algo ha ido mal") // change to view with a emptyImagen
-    }
-}
-
-@Composable
-fun LoadingScreen() {
-    CircularProgressIndicator()
 }
 
 @Composable
@@ -310,36 +306,12 @@ fun EpisodeItem(episode: EpisodeBo, onEpisodeClick: (Int) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyAppBar(title: String, onNavigationClick: () -> Unit) {
-    TopAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        title = {
-            Text(
-                text = title,
-                textAlign = TextAlign.Center,
-                fontSize = 28.sp,
-                style = MaterialTheme.typography.displayLarge
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigationClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = White80
-        )
-    )
-
-}
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewData() {
     DetailScreenView(
-        onBackPressed = {},
-        characterDetailScreenState = CharacterDetailScreenState.Data(
+        onBackPressedAction = {},
+        characterDetailState = CharacterDetailState.Data(
             character = CharacterBo(
                 created = "",
                 episodes = listOf(),
@@ -383,6 +355,7 @@ fun PreviewData() {
                     created = ""
                 )
             )
-        ), onEpisodeClick = {}
+        ), onEpisodeClickAction = {},
+        onRefreshClickAction = {}
     )
 }

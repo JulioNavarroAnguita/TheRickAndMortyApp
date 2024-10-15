@@ -28,8 +28,8 @@ class CharacterDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state =
-        MutableStateFlow<CharacterDetailScreenState>(CharacterDetailScreenState.Loading)
-    val state: StateFlow<CharacterDetailScreenState> get() = _state.asStateFlow()
+        MutableStateFlow<CharacterDetailState>(CharacterDetailState.Loading)
+    val state: StateFlow<CharacterDetailState> get() = _state.asStateFlow()
 
     companion object {
         const val SLASH = "/"
@@ -45,7 +45,7 @@ class CharacterDetailViewModel @Inject constructor(
                 fetchCharacterDetailUseCase.fetchCharacterDetail(id = it)
                     .catch { error ->
                         _state.update {
-                            CharacterDetailScreenState.Error(
+                            CharacterDetailState.Error(
                                 message = error.message ?: "Unknown error"
                             )
                         }
@@ -54,7 +54,6 @@ class CharacterDetailViewModel @Inject constructor(
                             is Either.Error -> {
                                 flowOf(characterResult to Either.Error(error = "Error to get character detail"))
                             }
-
                             is Either.Success -> {
                                 val numberOfEpisodeList = mutableListOf<String>()
                                 characterResult.data.episodes.map { episode ->
@@ -66,7 +65,7 @@ class CharacterDetailViewModel @Inject constructor(
                                     ) + BRACKET_CLOSE
                                 ).catch { error ->
                                     _state.update {
-                                        CharacterDetailScreenState.Error(
+                                        CharacterDetailState.Error(
                                             message = error.message ?: "Unknown error"
                                         )
                                     }
@@ -79,7 +78,7 @@ class CharacterDetailViewModel @Inject constructor(
                         when (characterResult) {
                             is Either.Error -> {
                                 _state.update {
-                                    CharacterDetailScreenState.Error(message = "Error to get character detail")
+                                    CharacterDetailState.Error(message = "Error to get character detail")
                                 }
                             }
 
@@ -87,13 +86,13 @@ class CharacterDetailViewModel @Inject constructor(
                                 when (episodeResult) {
                                     is Either.Error -> {
                                         _state.update {
-                                            CharacterDetailScreenState.Data(character = characterResult.data)
+                                            CharacterDetailState.Data(character = characterResult.data)
                                         }
                                     }
 
                                     is Either.Success -> {
                                         _state.update {
-                                            CharacterDetailScreenState.Data(
+                                            CharacterDetailState.Data(
                                                 character = characterResult.data,
                                                 episodes = episodeResult.data
                                             )
@@ -108,8 +107,8 @@ class CharacterDetailViewModel @Inject constructor(
     }
 }
 
-sealed class CharacterDetailScreenState {
-    data object Loading : CharacterDetailScreenState()
-    data class Error(val message: String? = null) : CharacterDetailScreenState()
-    data class Data(val character: CharacterBo? = null, val episodes: List<EpisodeBo>? = null) : CharacterDetailScreenState()
+sealed class CharacterDetailState {
+    data object Loading : CharacterDetailState()
+    data class Error(val message: String? = null) : CharacterDetailState()
+    data class Data(val character: CharacterBo? = null, val episodes: List<EpisodeBo>? = null) : CharacterDetailState()
 }

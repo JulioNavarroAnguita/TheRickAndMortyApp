@@ -13,26 +13,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,24 +47,47 @@ import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.LocationBo
 import com.example.domain_layer.model.character.OriginBo
+import com.example.presentation.R
+import com.example.presentation_layer.components.EmptyScreen
+import com.example.presentation_layer.components.ErrorScreen
+import com.example.presentation_layer.feature.chatacter.list.viewmodel.CharacterListState
 import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
 import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    characterList: List<CharacterBo>,
+    state: CharacterListState,
     onClickAction: (CharacterStatus) -> Unit,
-    onClickItem: (Int) -> Unit
+    onClickItem: (Int) -> Unit,
+    onRefreshAction: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
     ) {
+        when (state) {
+            is CharacterListState.Data -> CharacterListDataScreen(
+                onClickAction = onClickAction,
+                onClickItemAction = onClickItem,
+                characterList = state.characters
+            )
+            is CharacterListState.Error -> ErrorScreen(onRefreshClick = onRefreshAction, image = R.drawable.error, message = R.string.error_message)
+            CharacterListState.Loading -> CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
+fun CharacterListDataScreen(
+    onClickAction: (CharacterStatus) -> Unit,
+    onClickItemAction: (Int) -> Unit,
+    characterList: List<CharacterBo>?
+) {
+    if (!characterList.isNullOrEmpty()) {
         MyAppBar("Character List")
         Column(
             modifier = Modifier
@@ -72,15 +95,24 @@ fun ListScreen(
         ) {
             ChipGroup(onClickAction)
             Spacer(modifier = Modifier.height(8.dp))
-            BodyCharacterDetail(characterList = characterList, onClickItem = onClickItem)
+            BodyCharacterList(characterList = characterList, onClickItem = onClickItemAction)
         }
+    } else  {
+        EmptyScreen(image = R.drawable.empty_screen, message = R.string.empty_list)
     }
 }
 
 @Composable
-fun BodyCharacterDetail(characterList: List<CharacterBo>, onClickItem: (Int) -> Unit) {
+fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Unit) {
+    val listState = rememberLazyListState()
+
+    // Efecto para mover el scroll hacia arriba al actualizar la lista
+    LaunchedEffect(characterList) {
+        listState.scrollToItem(0) // Mover el scroll al inicio
+    }
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(characterList) { character ->
             StandardCard(character = character, onClickItem = onClickItem)
@@ -190,7 +222,7 @@ fun ChipGroup(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Transparent),
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
         var selectedChipIndex by remember { mutableStateOf(-1) }
@@ -220,39 +252,42 @@ fun ChipGroup(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun Preview() {
+fun CharacterListScreenPreview() {
     ListScreen(
-        characterList = listOf(
-            CharacterBo(
-                created = "",
-                episodes = listOf(),
-                gender = "Male",
-                id = 1,
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                location = LocationBo(name = "", url = ""),
-                name = "Rick",
-                origin = OriginBo(name = "Earth", url = ""),
-                species = "Human",
-                status = CharacterStatus.ALIVE,
-                type = "",
-                url = ""
-            ),
-            CharacterBo(
-                created = "",
-                episodes = listOf(),
-                gender = "Male",
-                id = 1,
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                location = LocationBo(name = "Earth", url = ""),
-                name = "Morty",
-                origin = OriginBo(name = "Earth", url = ""),
-                species = "Human",
-                status = CharacterStatus.DEAD,
-                type = "",
-                url = ""
+        state = CharacterListState.Data(
+            characters = listOf(
+                CharacterBo(
+                    created = "",
+                    episodes = listOf(),
+                    gender = "Male",
+                    id = 1,
+                    image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                    location = LocationBo(name = "", url = ""),
+                    name = "Rick",
+                    origin = OriginBo(name = "Earth", url = ""),
+                    species = "Human",
+                    status = CharacterStatus.ALIVE,
+                    type = "",
+                    url = ""
+                ),
+                CharacterBo(
+                    created = "",
+                    episodes = listOf(),
+                    gender = "Male",
+                    id = 1,
+                    image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                    location = LocationBo(name = "Earth", url = ""),
+                    name = "Morty",
+                    origin = OriginBo(name = "Earth", url = ""),
+                    species = "Human",
+                    status = CharacterStatus.DEAD,
+                    type = "",
+                    url = ""
+                )
             )
         ),
-        onClickAction = { mapOf<CharacterStatus, Boolean>() },
-        onClickItem = {}
+        onClickItem = {},
+        onClickAction = {},
+        onRefreshAction = {}
     )
 }

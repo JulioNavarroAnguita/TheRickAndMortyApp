@@ -11,7 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,36 +24,35 @@ class CharacterListViewModel @Inject constructor(
     private val filterCharacterListByStatusUseCase: FilterCharacterListByStatusUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(CharacterListState())
+    private val _state = MutableStateFlow<CharacterListState>(CharacterListState.Loading)
     val state: StateFlow<CharacterListState> = _state.asStateFlow()
 
     init {
         fetchCharacterList()
     }
-    private fun fetchCharacterList() {
+
+    fun fetchCharacterList() {
         viewModelScope.launch {
             fetchCharacterListUseCase.fetchCharacterList()
-                .onStart {
+                .catch { error ->
                     _state.update {
-                        it.copy(isLoading = true)
+                        CharacterListState.Error(error.message ?: "Unknown error")
                     }
                 }
-//                .catch {  } manejar exception
-                .collect { result ->
+                .collectLatest { result ->
                     when (result) {
                         is Either.Error -> {
                             _state.update {
-                                it.copy(error = "Error", isLoading = false) // manejar error
+                                CharacterListState.Error(message = "Error to load characters")
                             }
                         }
+
                         is Either.Success -> {
                             _state.update {
-                                it.copy(characters = result.data, isLoading = false)
+                                CharacterListState.Data(characters = result.data)
                             }
                         }
-                        else -> {}
                     }
-
                 }
         }
     }
@@ -60,41 +60,36 @@ class CharacterListViewModel @Inject constructor(
     fun onChipFilterAction(characterStatus: CharacterStatus) {
         viewModelScope.launch {
             if (characterStatus != CharacterStatus.ALL) {
-                filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(characterStatus.value.lowercase())
-                    .onStart {
-                        _state.update {
-                            it.copy(isLoading = true)
+                filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(
+                    characterStatus.value.lowercase()
+                ).catch { error ->
+                    _state.update {
+                        CharacterListState.Error(error.message ?: "Unknown error")
+                    }
+                }.collectLatest { result ->
+                    when (result) {
+                        is Either.Error -> {
+                            _state.update {
+                                CharacterListState.Error(message = "Error to load characters filtered")
+                            }
+                        }
+
+                        is Either.Success -> {
+                            _state.update {
+                                CharacterListState.Data(characters = result.data)
+                            }
                         }
                     }
-//                .catch {  } manejar exception
-                    .collect { result ->
-                        when (result) {
-                            is Either.Error -> {
-                                _state.update {
-                                    it.copy(error = "Error", isLoading = false) // manejar error
-                                }
-                            }
-                            is Either.Success -> {
-                                _state.update {
-                                    it.copy(characters = result.data, isLoading = false)
-                                }
-                            }
-
-                            else -> {}
-
-                        }
-                    }
+                }
             } else {
                 fetchCharacterList()
             }
-
         }
     }
-
 }
 
-data class CharacterListState(
-    val characters: List<CharacterBo>? = null,
-    val isLoading: Boolean = true,
-    val error: String? = null
-)
+sealed class CharacterListState {
+    data object Loading : CharacterListState()
+    data class Error(val message: String? = null) : CharacterListState()
+    data class Data(val characters: List<CharacterBo>? = null) : CharacterListState()
+}

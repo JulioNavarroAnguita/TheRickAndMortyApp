@@ -77,19 +77,20 @@ fun HomeScreen(
     navigateToCharacterDetail: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    state.characters?.let { characterList ->
-        ListScreen(
-            characterList = characterList,
-            onClickAction = { characterStatus ->
-                viewModel.onChipFilterAction(
-                    characterStatus = characterStatus
-                )
-            },
-            onClickItem = { itemId ->
-                navigateToCharacterDetail(itemId)
-            }
-        )
-    }
+    ListScreen(
+        state = state,
+        onClickAction = { characterStatus ->
+            viewModel.onChipFilterAction(
+                characterStatus = characterStatus
+            )
+        },
+        onClickItem = { itemId ->
+            navigateToCharacterDetail(itemId)
+        },
+        onRefreshAction = {
+            viewModel.fetchCharacterList()
+        }
+    )
 }
 
 @Composable
@@ -102,12 +103,15 @@ fun DetailScreen(
     viewModel.fetchCharacterDetail(itemId)
     val state by viewModel.state.collectAsState()
     DetailScreenView(
-        onBackPressed = {
+        onBackPressedAction = {
             onBackPressed()
         },
-        characterDetailScreenState = state,
-        onEpisodeClick = { episodeId ->
+        characterDetailState = state,
+        onEpisodeClickAction = { episodeId ->
 //                onEpisodeClick(episodeId) manejar bottomsheet
+        },
+        onRefreshClickAction = {
+            viewModel.fetchCharacterDetail(itemId)
         }
     )
 }

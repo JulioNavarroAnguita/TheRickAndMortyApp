@@ -40,7 +40,7 @@ data class CharacterBo(
 enum class CharacterStatus(val value : String) {
     ALIVE("Alive"),
     DEAD("Dead"),
-    UNKNOWN("unknown"),
+    UNKNOWN("Unknown"),
     ALL("All");
 }
 
