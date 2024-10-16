@@ -2,10 +2,15 @@
 
 package com.example.presentation_layer.navigation
 
-import DetailScreenView
+import CharacterDetailScreenView
+import EpisodeDetailScreenView
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -13,71 +18,136 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.presentation_layer.feature.MyBottomBar
 import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailViewModel
-import com.example.presentation_layer.feature.chatacter.list.ui.ListScreen
+import com.example.presentation_layer.feature.chatacter.list.ui.CharacterListScreenView
 import com.example.presentation_layer.feature.chatacter.list.viewmodel.CharacterListViewModel
-import com.example.presentation_layer.navigation.Navigation.CharacterDetail
-import com.example.presentation_layer.navigation.Navigation.EpisodeDetail
-import com.example.presentation_layer.navigation.Navigation.Home
-import com.example.presentation_layer.ui.theme.TheRickAndMortyAppTheme
+import com.example.presentation_layer.feature.episode.detail.viewmodel.EpisodeDetailViewModel
+import com.example.presentation_layer.feature.episode.list.ui.EpisodeListScreenView
+import com.example.presentation_layer.feature.episode.list.viewmodel.EpisodeListViewModel
+import com.example.presentation_layer.navigation.NavigationScreen.*
 import kotlinx.serialization.Serializable
 
 @Composable
 fun RickAndMortyApp() {
-    TheRickAndMortyAppTheme {
-        RickAndMortyNavGraph()
-    }
+    RickAndMortyNavGraph()
 }
 
-sealed interface Navigation {
+sealed interface NavigationScreen {
     @Serializable
-    data object Home : Navigation
+    data object CharactersHome : NavigationScreen
 
     @Serializable
-    data class CharacterDetail(val itemId: Int) : Navigation
+    data object EpisodesHome : NavigationScreen
 
     @Serializable
-    data class EpisodeDetail(val episodeId: Int? = null) : Navigation
+    data object LocationsHome : NavigationScreen
+
+    @Serializable
+    data class CharacterDetail(val itemId: Int) : NavigationScreen
+
+    @Serializable
+    data class EpisodeDetail(val episodeId: Int) : NavigationScreen
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RickAndMortyNavGraph(
     navController: NavHostController = rememberNavController(),
 ) {
-    NavHost(navController = navController, startDestination = Home) {
-        composable<Home> {
-            val characterListViewModel: CharacterListViewModel = hiltViewModel()
-            HomeScreen(
-                viewModel { characterListViewModel },
-                navigateToCharacterDetail = { id ->
-                    navController.navigate(CharacterDetail(itemId = id))
-                }
-            )
+    Scaffold(
+        bottomBar = {
+            MyBottomBar(onNavigationItemClick = { navigationScreen ->
+                navController.navigate(navigationScreen)
+            })
         }
-        composable<CharacterDetail> { navBackStackEntry ->
-            val character = requireNotNull(navBackStackEntry.toRoute<CharacterDetail>())
-            val characterDetailViewModel: CharacterDetailViewModel = hiltViewModel()
-            DetailScreen(
-                viewModel { characterDetailViewModel },
-                itemId = character.itemId,
-                onBackPressed = {
-                    navController.navigate(Home)
-                },
-                onEpisodeClick = { episodeId ->
-                    navController.navigate(EpisodeDetail(episodeId))
-                }
-            )
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = CharactersHome,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            composable<CharactersHome> {
+                val characterListViewModel: CharacterListViewModel = hiltViewModel()
+                CharactersHomeScreen(
+                    viewModel { characterListViewModel },
+                    navigateToCharacterDetail = { id ->
+                        navController.navigate(CharacterDetail(itemId = id))
+                    }
+                )
+            }
+            composable<EpisodesHome> {
+                val episodeListViewModel: EpisodeListViewModel = hiltViewModel()
+                EpisodesHomeScreen(
+                    viewModel { episodeListViewModel },
+                    navigateToEpisodeDetail = { episodeId ->
+                        navController.navigate(EpisodeDetail(episodeId = episodeId))
+                    }
+                )
+            }
+            composable<EpisodeDetail> { navBackStackEntry ->
+                val episodeId = requireNotNull(navBackStackEntry.toRoute<EpisodeDetail>()).episodeId
+                val episodeDetailViewModel: EpisodeDetailViewModel = hiltViewModel()
+                EpisodeDetailScreen(
+                    viewModel { episodeDetailViewModel },
+                    itemId = episodeId
+
+                )
+            }
+            composable<CharacterDetail> { navBackStackEntry ->
+                val character = requireNotNull(navBackStackEntry.toRoute<CharacterDetail>())
+                val characterDetailViewModel: CharacterDetailViewModel = hiltViewModel()
+                CharacterDetailScreen(
+                    viewModel { characterDetailViewModel },
+                    itemId = character.itemId,
+                    onBackPressed = {
+                        navController.navigate(CharactersHome)
+                    },
+                    onEpisodeClick = { episodeId ->
+                        navController.navigate(EpisodeDetail(episodeId))
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun HomeScreen(
+fun EpisodesHomeScreen(
+    viewModel: EpisodeListViewModel,
+    navigateToEpisodeDetail: (Int) -> Unit
+) {
+    val state by viewModel.state.collectAsState()
+    EpisodeListScreenView(
+        state = state,
+        onClickItem = { itemId ->
+            navigateToEpisodeDetail(itemId)
+        },
+        onRefreshAction = {
+//            viewModel.fetchCharacterList()
+        }
+    )
+}
+
+@Composable
+fun EpisodeDetailScreen(
+    viewModel: EpisodeDetailViewModel,
+    itemId: Int
+) {
+    viewModel.fetchEpisodeDetail(itemId)
+    val state by viewModel.state.collectAsState()
+    EpisodeDetailScreenView(
+        episodeDetailState = state
+    )
+}
+
+@Composable
+fun CharactersHomeScreen(
     viewModel: CharacterListViewModel,
     navigateToCharacterDetail: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    ListScreen(
+    CharacterListScreenView(
         state = state,
         onClickAction = { characterStatus ->
             viewModel.onChipFilterAction(
@@ -94,7 +164,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun DetailScreen(
+fun CharacterDetailScreen(
     viewModel: CharacterDetailViewModel,
     itemId: Int,
     onBackPressed: () -> Unit,
@@ -102,7 +172,7 @@ fun DetailScreen(
 ) {
     viewModel.fetchCharacterDetail(itemId)
     val state by viewModel.state.collectAsState()
-    DetailScreenView(
+    CharacterDetailScreenView(
         onBackPressedAction = {
             onBackPressed()
         },

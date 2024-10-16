@@ -12,7 +12,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
@@ -42,66 +41,65 @@ class CharacterDetailViewModel @Inject constructor(
     fun fetchCharacterDetail(id: Int?) {
         id?.let {
             viewModelScope.launch {
-                fetchCharacterDetailUseCase.fetchCharacterDetail(id = it)
-                    .catch { error ->
-                        _state.update {
-                            CharacterDetailState.Error(
-                                message = error.message ?: "Unknown error"
-                            )
-                        }
-                    }.flatMapConcat { characterResult ->
-                        when (characterResult) {
-                            is Either.Error -> {
-                                flowOf(characterResult to Either.Error(error = "Error to get character detail"))
-                            }
-                            is Either.Success -> {
-                                val numberOfEpisodeList = mutableListOf<String>()
-                                characterResult.data.episodes.map { episode ->
-                                    numberOfEpisodeList.add(episode.split(SLASH).last())
+                try {
+                    fetchCharacterDetailUseCase.fetchCharacterDetail(id = it)
+                        .flatMapConcat { characterResult ->
+                            when (characterResult) {
+                                is Either.Error -> {
+                                    flowOf(characterResult to Either.Error(error = "Error to get character detail"))
                                 }
-                                fetchEpisodeListUseCase.fetchEpisodeList(
-                                    path = BRACKET_OPEN + numberOfEpisodeList.joinToString(
-                                        SEPARATOR
-                                    ) + BRACKET_CLOSE
-                                ).catch { error ->
-                                    _state.update {
-                                        CharacterDetailState.Error(
-                                            message = error.message ?: "Unknown error"
-                                        )
-                                    }
-                                }.map { episodeResult ->
-                                    characterResult to episodeResult
-                                }
-                            }
-                        }
-                    }.collectLatest { (characterResult, episodeResult) ->
-                        when (characterResult) {
-                            is Either.Error -> {
-                                _state.update {
-                                    CharacterDetailState.Error(message = "Error to get character detail")
-                                }
-                            }
 
-                            is Either.Success -> {
-                                when (episodeResult) {
-                                    is Either.Error -> {
-                                        _state.update {
-                                            CharacterDetailState.Data(character = characterResult.data)
+                                is Either.Success -> {
+                                    val numberOfEpisodeList =
+                                        characterResult.data.episodes.map { episode ->
+                                            episode.split(SLASH).last()
                                         }
-                                    }
-
-                                    is Either.Success -> {
-                                        _state.update {
-                                            CharacterDetailState.Data(
-                                                character = characterResult.data,
-                                                episodes = episodeResult.data
+                                    fetchEpisodeListUseCase.fetchEpisodeList(
+                                        path = "$BRACKET_OPEN${
+                                            numberOfEpisodeList.joinToString(
+                                                SEPARATOR
                                             )
+                                        }$BRACKET_CLOSE"
+                                    ).map { episodeResult ->
+                                        characterResult to episodeResult
+                                    }
+                                }
+                            }
+                        }.collectLatest { (characterResult, episodeResult) ->
+                            when (characterResult) {
+                                is Either.Error -> {
+                                    _state.update {
+                                        CharacterDetailState.Error(message = "Error to get character detail")
+                                    }
+                                }
+
+                                is Either.Success -> {
+                                    when (episodeResult) {
+                                        is Either.Error -> {
+                                            _state.update {
+                                                CharacterDetailState.Data(character = characterResult.data)
+                                            }
+                                        }
+
+                                        is Either.Success -> {
+                                            _state.update {
+                                                CharacterDetailState.Data(
+                                                    character = characterResult.data,
+                                                    episodes = episodeResult.data
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                } catch (error: Exception) {
+                    _state.update {
+                        CharacterDetailState.Error(
+                            message = error.message ?: "Unknown error"
+                        )
                     }
+                }
             }
         }
     }
@@ -109,6 +107,7 @@ class CharacterDetailViewModel @Inject constructor(
 
 sealed class CharacterDetailState {
     data object Loading : CharacterDetailState()
-    data class Error(val message: String? = null) : CharacterDetailState()
-    data class Data(val character: CharacterBo? = null, val episodes: List<EpisodeBo>? = null) : CharacterDetailState()
+    data class Error(val message: String) : CharacterDetailState()
+    data class Data(val character: CharacterBo, val episodes: List<EpisodeBo> = emptyList()) :
+        CharacterDetailState()
 }

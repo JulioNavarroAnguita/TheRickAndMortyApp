@@ -2,7 +2,7 @@ package com.example.domain_layer.model.episode
 
 data class ResultBo(
     val info: EpisodeInfoBo,
-    val results: List<EpisodeBo?>
+    val results: List<EpisodeBo>
 )
 
 data class EpisodeInfoBo(
@@ -17,7 +17,7 @@ data class EpisodeBo(
     val name: String,
     val airDate: String,
     val episode: String,
-    val characters: List<String?>,
+    val characters: List<String>,
     val url: String,
     val created: String
 )

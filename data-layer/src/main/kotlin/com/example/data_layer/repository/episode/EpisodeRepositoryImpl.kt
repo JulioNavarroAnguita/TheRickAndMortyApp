@@ -36,6 +36,32 @@ class EpisodeRepositoryImpl @Inject constructor(private val episodeRemoteDataSou
         Either.Error(FailureDto.Unknown.failureDtoToBo())
     }
 
+    override suspend fun fetchAllEpisodes() = try {
+
+        val response = episodeRemoteDataSource.getEpisodeListFromService()
+        if (response.isSuccessful) {
+            response.body()?.results?.episodeListDtoToBo()?.let { episodeList ->
+                Either.Success(data = episodeList)
+            } ?: run {
+                Either.Error(
+                    FailureDto.UnexpectedFailure(
+                        code = response.code(),
+                        localizedMessage = response.message()
+                    ).failureDtoToBo()
+                )
+            }
+        } else {
+            Either.Error(
+                FailureDto.UnexpectedFailure(
+                    code = response.code(),
+                    localizedMessage = response.message()
+                ).failureDtoToBo()
+            )
+        }
+    } catch (e: Exception) {
+        Either.Error(FailureDto.Unknown.failureDtoToBo())
+    }
+
     override suspend fun fetchEpisode(id: Int) = try {
         val response = episodeRemoteDataSource.getEpisodeFromService(id)
         if (response.isSuccessful) {

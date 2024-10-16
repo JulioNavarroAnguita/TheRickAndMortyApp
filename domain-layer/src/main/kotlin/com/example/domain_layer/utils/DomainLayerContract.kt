@@ -14,5 +14,6 @@ interface CharacterRepository {
 
 interface EpisodeRepository {
     suspend fun fetchEpisodeList(path: String): Either<FailureBo, List<EpisodeBo>>
+    suspend fun fetchAllEpisodes(): Either<FailureBo, List<EpisodeBo>>
     suspend fun fetchEpisode(id: Int): Either<FailureBo, EpisodeBo>
 }

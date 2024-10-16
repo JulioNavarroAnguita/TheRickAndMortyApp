@@ -58,7 +58,7 @@ import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
 @Composable
-fun ListScreen(
+fun CharacterListScreenView(
     state: CharacterListState,
     onClickAction: (CharacterStatus) -> Unit,
     onClickItem: (Int) -> Unit,
@@ -75,7 +75,13 @@ fun ListScreen(
                 onClickItemAction = onClickItem,
                 characterList = state.characters
             )
-            is CharacterListState.Error -> ErrorScreen(onRefreshClick = onRefreshAction, image = R.drawable.error, message = R.string.error_message)
+
+            is CharacterListState.Error -> ErrorScreen(
+                onRefreshClick = onRefreshAction,
+                image = R.drawable.error,
+                message = R.string.error_message
+            )
+
             CharacterListState.Loading -> CircularProgressIndicator()
         }
     }
@@ -85,21 +91,23 @@ fun ListScreen(
 fun CharacterListDataScreen(
     onClickAction: (CharacterStatus) -> Unit,
     onClickItemAction: (Int) -> Unit,
-    characterList: List<CharacterBo>?
+    characterList: List<CharacterBo>
 ) {
-    if (!characterList.isNullOrEmpty()) {
-        MyAppBar("Character List")
+    if (characterList.isNotEmpty()) {
+        com.example.presentation_layer.feature.episode.list.ui.MyAppBar("Character List")
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
         ) {
             ChipGroup(onClickAction)
             Spacer(modifier = Modifier.height(8.dp))
-            BodyCharacterList(characterList = characterList, onClickItem = onClickItemAction)
+            BodyCharacterList(
+                characterList = characterList,
+                onClickItem = onClickItemAction
+            )
         }
-    } else  {
-        EmptyScreen(image = R.drawable.empty_screen, message = R.string.empty_list)
-    }
+    } else EmptyScreen(image = R.drawable.empty_screen, message = R.string.empty_list)
+
 }
 
 @Composable
@@ -115,7 +123,10 @@ fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Un
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(characterList) { character ->
-            StandardCard(character = character, onClickItem = onClickItem)
+            StandardCard(
+                character = character,
+                onClickItem = onClickItem
+            )
         }
         item {
             Spacer(modifier = Modifier.height(8.dp))
@@ -253,7 +264,7 @@ fun ChipGroup(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CharacterListScreenPreview() {
-    ListScreen(
+    CharacterListScreenView(
         state = CharacterListState.Data(
             characters = listOf(
                 CharacterBo(

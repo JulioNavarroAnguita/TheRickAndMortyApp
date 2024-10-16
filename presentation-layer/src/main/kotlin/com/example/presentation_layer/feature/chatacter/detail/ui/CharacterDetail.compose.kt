@@ -60,7 +60,7 @@ import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
 @Composable
-fun DetailScreenView(
+fun CharacterDetailScreenView(
     onBackPressedAction: () -> Unit,
     characterDetailState: CharacterDetailState,
     onEpisodeClickAction: (Int) -> Unit,
@@ -94,30 +94,27 @@ fun DetailScreenView(
 
 @Composable
 fun DataScreen(
-    character: CharacterBo?,
-    episodeList: List<EpisodeBo>?,
+    character: CharacterBo,
+    episodeList: List<EpisodeBo>,
     onBackPressed: () -> Unit,
     onEpisodeClick: (Int) -> Unit
 ) {
-    character?.let {
-        HeaderDetail {
-            onBackPressed()
+    HeaderDetail {
+        onBackPressed()
+    }
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        BodyDetail(character = character)
+        if (episodeList.isNotEmpty()) {
+            EpisodeCarousel(
+                episodes = episodeList,
+                onEpisodeClick = onEpisodeClick
+            )
         }
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            BodyDetail(character = character)
-            episodeList?.let { episodes ->
-                EpisodeCarousel(
-                    episodes = episodes,
-                    onEpisodeClick = onEpisodeClick
-                )
-            }
-            FooterDetail(character = character)
-        }
-
+        FooterDetail(character = character)
     }
 }
 
@@ -309,7 +306,7 @@ fun EpisodeItem(episode: EpisodeBo, onEpisodeClick: (Int) -> Unit) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewData() {
-    DetailScreenView(
+    CharacterDetailScreenView(
         onBackPressedAction = {},
         characterDetailState = CharacterDetailState.Data(
             character = CharacterBo(

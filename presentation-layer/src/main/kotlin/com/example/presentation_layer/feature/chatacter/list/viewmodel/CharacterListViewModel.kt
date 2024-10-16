@@ -7,12 +7,14 @@ import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.usecase.character.FetchCharacterListUseCase
 import com.example.domain_layer.usecase.character.FilterCharacterListByStatusUseCase
 import com.example.domain_layer.utils.Either
+import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -90,6 +92,6 @@ class CharacterListViewModel @Inject constructor(
 
 sealed class CharacterListState {
     data object Loading : CharacterListState()
-    data class Error(val message: String? = null) : CharacterListState()
-    data class Data(val characters: List<CharacterBo>? = null) : CharacterListState()
+    data class Error(val message: String) : CharacterListState()
+    data class Data(val characters: List<CharacterBo>) : CharacterListState()
 }

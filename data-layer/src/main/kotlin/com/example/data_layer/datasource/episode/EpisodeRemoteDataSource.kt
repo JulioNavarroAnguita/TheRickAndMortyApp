@@ -1,9 +1,10 @@
 package com.example.data_layer.datasource.episode
 
 import com.example.data_layer.service.RickAndMortyService
+import com.example.data_layer.service.RickAndMortyService.*
 import javax.inject.Inject
 
-class EpisodeRemoteDataSource @Inject constructor(private val episodeService: RickAndMortyService.EpisodeService) :
+class EpisodeRemoteDataSource @Inject constructor(private val episodeService: EpisodeService) :
     EpisodeDataSource {
     override suspend fun getEpisodeListFromService() = episodeService.getEpisodes()
 

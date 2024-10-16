@@ -8,9 +8,14 @@ import com.example.domain_layer.usecase.character.FetchCharacterListWithParamsUs
 import com.example.domain_layer.usecase.episode.FetchEpisodeDetailUseCase
 import com.example.domain_layer.utils.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,34 +26,58 @@ class EpisodeDetailViewModel @Inject constructor(
     private val fetchCharacterListWithParamsUseCase: FetchCharacterListWithParamsUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(EpisodeDetailState())
+    private val _state = MutableStateFlow<EpisodeDetailState>(EpisodeDetailState.Loading)
     val state: StateFlow<EpisodeDetailState> get() = _state.asStateFlow()
+
+    companion object {
+        const val SLASH = "/"
+        const val SEPARATOR = ","
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun fetchEpisodeDetail(episodeId: Int) {
         viewModelScope.launch {
-            fetchEpisodeDetailUseCase.fetchEpisodeDetail(id = episodeId)
-                .collect { episodeResult ->
-                    when (episodeResult) {
-                        is Either.Error -> {}
-                        is Either.Success -> {
-                            //TODO: contemplar combine
-                            val numberOfCharacterList = mutableListOf<String>()
-                            episodeResult.data.characters.map { episode ->
-                                episode?.let {
-                                    numberOfCharacterList.add(episode.split("/").last())
+            try {
+                fetchEpisodeDetailUseCase.fetchEpisodeDetail(id = episodeId)
+                    .flatMapConcat { episodeResult ->
+                        when (episodeResult) {
+                            is Either.Error -> {
+                                flowOf(episodeResult to Either.Error(error = "Error to get episode detail"))
+                            }
+
+                            is Either.Success -> {
+                                val numberOfCharacterList =
+                                    episodeResult.data.characters.map { episode ->
+                                        episode.split(SLASH).last()
+                                    }
+                                fetchCharacterListWithParamsUseCase.fetchCharacterListWithParams(
+                                    path = numberOfCharacterList.joinToString(SEPARATOR)
+                                ).map { characterResult ->
+                                    episodeResult to characterResult
                                 }
                             }
-                            fetchCharacterListWithParamsUseCase.fetchCharacterListWithParams(
-                                numberOfCharacterList.joinToString(",")
-                            ).collect { characterResult ->
+                        }
+                    }.collectLatest { (episodeResult, characterResult) ->
+                        when (episodeResult) {
+                            is Either.Error -> {
+                                _state.update {
+                                    EpisodeDetailState.Error(message = "Error to get episode detail")
+                                }
+                            }
+
+                            is Either.Success -> {
                                 when (characterResult) {
-                                    is Either.Error -> {}
+                                    is Either.Error -> {
+                                        _state.update {
+                                            EpisodeDetailState.Data(episode = episodeResult.data)
+                                        }
+                                    }
+
                                     is Either.Success -> {
                                         _state.update {
-                                            it.copy(
-                                                episodeData = EpisodeDetailDataModel(
-                                                    episode = episodeResult.data,
-                                                    characters = characterResult.data
-                                                )
+                                            EpisodeDetailState.Data(
+                                                episode = episodeResult.data,
+                                                characters = characterResult.data
                                             )
                                         }
                                     }
@@ -56,17 +85,22 @@ class EpisodeDetailViewModel @Inject constructor(
                             }
                         }
                     }
+            } catch (exception: Exception) {
+                _state.update {
+                    EpisodeDetailState.Error(
+                        message = exception.message ?: "Unknown error"
+                    )
                 }
+            }
         }
     }
-
 }
 
-data class EpisodeDetailState(
-    val episodeData: EpisodeDetailDataModel? = null,
-)
-
-data class EpisodeDetailDataModel(
-    val episode: EpisodeBo? = null,
-    val characters: List<CharacterBo>? = null,
-)
+sealed class EpisodeDetailState {
+    data object Loading : EpisodeDetailState()
+    data class Error(val message: String) : EpisodeDetailState()
+    data class Data(
+        val episode: EpisodeBo,
+        val characters: List<CharacterBo> = emptyList(),
+    ) : EpisodeDetailState()
+}
