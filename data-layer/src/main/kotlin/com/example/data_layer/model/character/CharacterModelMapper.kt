@@ -1,13 +1,12 @@
 package com.example.data_layer.model.character
 
+import com.example.data_layer.model.common.DEFAULT_INTEGER
+import com.example.data_layer.model.common.DEFAULT_STRING
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
-import com.example.domain_layer.model.character.FailureBo
-import com.example.domain_layer.model.character.LocationBo
-import com.example.domain_layer.model.character.OriginBo
+import com.example.domain_layer.model.character.CharacterLocationBo
+import com.example.domain_layer.model.character.CharacterOriginBo
 
-const val DEFAULT_STRING = "none"
-const val DEFAULT_INTEGER = -1
 fun List<CharacterDto>.characterListDtoToBo() = map {
     it.characterDtoToBo()
 }
@@ -18,9 +17,9 @@ fun CharacterDto.characterDtoToBo() = CharacterBo(
     gender = gender ?: DEFAULT_STRING,
     id = id ?: DEFAULT_INTEGER,
     image = image ?: DEFAULT_STRING,
-    location = location?.locationDtoToBo() ?: dummyLocationBo,
+    location = location?.locationDtoToBo() ?: dummyCharacterLocationBo,
     name = name ?: DEFAULT_STRING,
-    origin = origin?.originDtoToBo() ?: dummyOriginBo,
+    origin = origin?.originDtoToBo() ?: dummyCharacterOriginBo,
     species = species ?: DEFAULT_STRING,
     status = fromString(status) ?: CharacterStatus.UNKNOWN,
     type = type ?: DEFAULT_STRING,
@@ -29,31 +28,22 @@ fun CharacterDto.characterDtoToBo() = CharacterBo(
 
 fun fromString(value: String?) = CharacterStatus.values().find { it.value.equals(value, ignoreCase = true) } // TODO: extensions Utils
 
-fun LocationDto.locationDtoToBo() = LocationBo(
+fun CharacterLocationDto.locationDtoToBo() = CharacterLocationBo(
     name = name ?: DEFAULT_STRING,
     url = url ?: DEFAULT_STRING
 )
 
-fun OriginDto.originDtoToBo() = OriginBo(
+fun CharacterOriginDto.originDtoToBo() = CharacterOriginBo(
     name = name ?: DEFAULT_STRING,
     url = url ?: DEFAULT_STRING
 )
 
-val dummyLocationBo = LocationBo(
+val dummyCharacterLocationBo = CharacterLocationBo(
     name = DEFAULT_STRING,
     url = DEFAULT_STRING
 )
 
-val dummyOriginBo = OriginBo(
+val dummyCharacterOriginBo = CharacterOriginBo(
     name = DEFAULT_STRING,
     url = DEFAULT_STRING
 )
-
-fun FailureDto.failureDtoToBo(): FailureBo = when (this) {
-    is FailureDto.ClientError -> FailureBo.ClientError(code, message ?: DEFAULT_STRING)
-    is FailureDto.EmptyResponse -> FailureBo.EmptyResponse(message ?: DEFAULT_STRING)
-    FailureDto.NoNetwork -> FailureBo.NoNetwork
-    is FailureDto.ServerError -> FailureBo.ServerError(code, message ?: DEFAULT_STRING)
-    is FailureDto.UnexpectedFailure -> FailureBo.UnexpectedFailure(code, localizedMessage ?: DEFAULT_STRING)
-    FailureDto.Unknown -> FailureBo.Unknown
-}

@@ -1,6 +1,7 @@
 [versions]
+accompanistFlowlayout = "0.30.0"
 accompanistNavigationMaterial = "0.36.0"
-activityCompose = "1.9.2"
+activityCompose = "1.9.3"
 androidx-junit = "1.2.1"
 coilCompose = "2.2.2"
 converterGson = "2.11.0"
@@ -18,21 +19,22 @@ kotlinxCoroutinesCore = "1.7.3"
 kotlinxSerializationJson = "1.7.1"
 lifecycleViewmodelKtx = "2.8.6"
 loggingInterceptor = "4.12.0"
-material = "1.7.3"
+material = "1.7.4"
 material3 = "1.3.0"
-navigationCompose = "2.8.2"
+navigationCompose = "2.8.3"
 pagingCommon = "3.3.2"
 pagingRuntimeKtx = "3.3.2"
 retrofit = "2.11.0"
 squareup-retrofit = "2.11.0"
-ui = "1.7.3"
+ui = "1.7.4"
 uiLayout = "0.1.0-dev07"
 androidGradlePlugin = "8.1.3"
 javaxInject = "1"
-material-navigation = "1.8.0-alpha03"
+material-navigation = "1.8.0-alpha04"
 pagingCompose = "3.3.2"
 
 [libraries]
+accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommon" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

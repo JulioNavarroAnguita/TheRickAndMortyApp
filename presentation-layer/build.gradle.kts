@@ -4,7 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
-    alias(libs.plugins.compose.compiler)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
     id("kotlinx-serialization")
 }
 
@@ -59,6 +59,11 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.google.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+
+
+    // Accompanist
+    implementation(libs.accompanist.flowlayout)
+
 
     // Icons Material Design
     implementation(libs.material.icons.extended)

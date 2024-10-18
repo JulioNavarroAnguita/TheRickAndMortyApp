@@ -20,14 +20,11 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,15 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
-import com.example.domain_layer.model.character.LocationBo
-import com.example.domain_layer.model.character.OriginBo
+import com.example.domain_layer.model.character.CharacterLocationBo
+import com.example.domain_layer.model.character.CharacterOriginBo
 import com.example.presentation.R
 import com.example.presentation_layer.components.EmptyScreen
 import com.example.presentation_layer.components.ErrorScreen
@@ -54,7 +49,6 @@ import com.example.presentation_layer.feature.chatacter.list.viewmodel.Character
 import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
-import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
 @Composable
@@ -94,7 +88,6 @@ fun CharacterListDataScreen(
     characterList: List<CharacterBo>
 ) {
     if (characterList.isNotEmpty()) {
-        com.example.presentation_layer.feature.episode.list.ui.MyAppBar("Character List")
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -132,24 +125,6 @@ fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Un
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyAppBar(title: String) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                textAlign = TextAlign.Center,
-                fontSize = 28.sp,
-                style = MaterialTheme.typography.displayLarge
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = White80
-        )
-    )
 }
 
 @Composable
@@ -273,9 +248,9 @@ fun CharacterListScreenPreview() {
                     gender = "Male",
                     id = 1,
                     image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                    location = LocationBo(name = "", url = ""),
+                    location = CharacterLocationBo(name = "", url = ""),
                     name = "Rick",
-                    origin = OriginBo(name = "Earth", url = ""),
+                    origin = CharacterOriginBo(name = "Earth", url = ""),
                     species = "Human",
                     status = CharacterStatus.ALIVE,
                     type = "",
@@ -287,9 +262,9 @@ fun CharacterListScreenPreview() {
                     gender = "Male",
                     id = 1,
                     image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                    location = LocationBo(name = "Earth", url = ""),
+                    location = CharacterLocationBo(name = "Earth", url = ""),
                     name = "Morty",
-                    origin = OriginBo(name = "Earth", url = ""),
+                    origin = CharacterOriginBo(name = "Earth", url = ""),
                     species = "Human",
                     status = CharacterStatus.DEAD,
                     type = "",

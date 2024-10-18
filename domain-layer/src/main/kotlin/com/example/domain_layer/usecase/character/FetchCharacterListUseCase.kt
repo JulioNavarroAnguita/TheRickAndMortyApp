@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class FetchCharacterListUseCase @Inject constructor(private val characterRepository: CharacterRepository) {
 
-    suspend fun fetchCharacterList() = flow { emit(characterRepository.fetchCharacters()) }
+    suspend fun fetchCharacterList() = flow { emit(characterRepository.fetchAllCharacters()) }
 
 }

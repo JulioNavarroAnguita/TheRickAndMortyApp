@@ -2,11 +2,14 @@ package com.example.data_layer.di
 
 import com.example.data_layer.datasource.character.CharacterRemoteDataSource
 import com.example.data_layer.datasource.episode.EpisodeRemoteDataSource
+import com.example.data_layer.datasource.location.LocationRemoteDataSource
 import com.example.data_layer.repository.character.CharacterRepositoryImpl
 import com.example.data_layer.repository.episode.EpisodeRepositoryImpl
+import com.example.data_layer.repository.location.LocationRepositoryImpl
 import com.example.data_layer.service.RickAndMortyService.*
 import com.example.domain_layer.utils.CharacterRepository
 import com.example.domain_layer.utils.EpisodeRepository
+import com.example.domain_layer.utils.LocationRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,7 +48,7 @@ object Modules {
     @Provides
     @Singleton
     fun provideCharacterRemoteDataSource(characterService: CharacterService) =
-        CharacterRemoteDataSource(characterService)
+        CharacterRemoteDataSource(characterService = characterService)
 
     @Singleton
     @Provides
@@ -62,11 +65,27 @@ object Modules {
     @Provides
     @Singleton
     fun provideEpisodeRemoteDataSource(episodeService: EpisodeService) =
-        EpisodeRemoteDataSource(episodeService)
+        EpisodeRemoteDataSource(episodeService = episodeService)
 
     @Singleton
     @Provides
     fun provideEpisodeRepository(episodeRemoteDataSource: EpisodeRemoteDataSource): EpisodeRepository =
         EpisodeRepositoryImpl(episodeRemoteDataSource = episodeRemoteDataSource)
+
+    // Location
+    @Provides
+    @Singleton
+    fun provideLocationApiService(retrofit: Retrofit): LocationService =
+        retrofit.create(LocationService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLocationRemoteDataSource(locationService: LocationService) =
+        LocationRemoteDataSource(locationService = locationService)
+
+    @Singleton
+    @Provides
+    fun provideLocationRepository(locationRemoteDataSource: LocationRemoteDataSource): LocationRepository =
+        LocationRepositoryImpl(locationRemoteDataSource = locationRemoteDataSource)
 
 }

@@ -1,8 +1,8 @@
 package com.example.data_layer.repository.episode
 
 import com.example.data_layer.datasource.episode.EpisodeRemoteDataSource
-import com.example.data_layer.model.character.FailureDto
-import com.example.data_layer.model.character.failureDtoToBo
+import com.example.data_layer.model.common.FailureDto
+import com.example.data_layer.model.common.failureDtoToBo
 import com.example.data_layer.model.episode.episodeDtoToBo
 import com.example.data_layer.model.episode.episodeListDtoToBo
 import com.example.domain_layer.utils.Either
@@ -40,7 +40,7 @@ class EpisodeRepositoryImpl @Inject constructor(private val episodeRemoteDataSou
 
         val response = episodeRemoteDataSource.getEpisodeListFromService()
         if (response.isSuccessful) {
-            response.body()?.results?.episodeListDtoToBo()?.let { episodeList ->
+            response.body()?.episodeList?.episodeListDtoToBo()?.let { episodeList ->
                 Either.Success(data = episodeList)
             } ?: run {
                 Either.Error(

@@ -19,19 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,15 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
-import com.example.domain_layer.model.character.LocationBo
-import com.example.domain_layer.model.character.OriginBo
+import com.example.domain_layer.model.character.CharacterLocationBo
+import com.example.domain_layer.model.character.CharacterOriginBo
 import com.example.domain_layer.model.episode.EpisodeBo
 import com.example.presentation.R
 import com.example.presentation_layer.components.ErrorScreen
@@ -56,15 +49,13 @@ import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.Pink80
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
-import com.example.presentation_layer.ui.theme.White80
 import com.example.presentation_layer.ui.theme.purple
 
 @Composable
 fun CharacterDetailScreenView(
     onBackPressedAction: () -> Unit,
     characterDetailState: CharacterDetailState,
-    onEpisodeClickAction: (Int) -> Unit,
-    onRefreshClickAction: (Int) -> Unit
+    onEpisodeClickAction: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -77,7 +68,6 @@ fun CharacterDetailScreenView(
             is CharacterDetailState.Data -> DataScreen(
                 character = characterDetailState.character,
                 episodeList = characterDetailState.episodes,
-                onBackPressed = onBackPressedAction,
                 onEpisodeClick = onEpisodeClickAction
             )
 
@@ -96,12 +86,9 @@ fun CharacterDetailScreenView(
 fun DataScreen(
     character: CharacterBo,
     episodeList: List<EpisodeBo>,
-    onBackPressed: () -> Unit,
     onEpisodeClick: (Int) -> Unit
 ) {
-    HeaderDetail {
-        onBackPressed()
-    }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -129,30 +116,6 @@ fun EpisodeCarousel(episodes: List<EpisodeBo>, onEpisodeClick: (Int) -> Unit) {
         onEpisodeClick(episodeId)
     }
     Spacer(modifier = Modifier.height(8.dp))
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HeaderDetail(onBackPressed: () -> Unit) {
-    TopAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        title = {
-            Text(
-                text = "Character Detail",
-                textAlign = TextAlign.Center,
-                fontSize = 28.sp,
-                style = MaterialTheme.typography.displayLarge
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackPressed) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = White80
-        )
-    )
 }
 
 @Composable
@@ -315,9 +278,9 @@ fun PreviewData() {
                 gender = "Male",
                 id = 1,
                 image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                location = LocationBo(name = "Earth", url = ""),
+                location = CharacterLocationBo(name = "Earth", url = ""),
                 name = "Morty",
-                origin = OriginBo(name = "Earth", url = ""),
+                origin = CharacterOriginBo(name = "Earth", url = ""),
                 species = "Human",
                 status = CharacterStatus.DEAD,
                 type = "",
@@ -352,7 +315,6 @@ fun PreviewData() {
                     created = ""
                 )
             )
-        ), onEpisodeClickAction = {},
-        onRefreshClickAction = {}
+        ), onEpisodeClickAction = {}
     )
 }

@@ -1,18 +1,16 @@
 package com.example.data_layer.model.episode
+
+import com.example.data_layer.model.common.InfoDto
+import com.google.gson.annotations.SerializedName
+
 data class EpisodeResultDto(
-    val info: EpisodeInfoDto? = null,
-    val results: List<EpisodeDto>? = null
-)
-data class EpisodeInfoDto(
-    val count: Int? = null,
-    val pages: Int? = null,
-    val next: String? = null,
-    val prev: Any? = null
+    val info: InfoDto? = null,
+    @SerializedName("results") val episodeList: List<EpisodeDto>? = null
 )
 data class EpisodeDto(
     val id: Int? = null,
     val name: String? = null,
-    val air_date: String? = null,
+    @SerializedName("air_date") val airDate: String? = null,
     val episode: String? = null,
     val characters: List<String>? = null,
     val url: String? = null,

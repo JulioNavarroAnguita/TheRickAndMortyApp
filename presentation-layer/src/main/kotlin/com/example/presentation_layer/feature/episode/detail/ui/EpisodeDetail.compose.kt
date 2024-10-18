@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
-import com.example.domain_layer.model.character.LocationBo
-import com.example.domain_layer.model.character.OriginBo
+import com.example.domain_layer.model.character.CharacterLocationBo
+import com.example.domain_layer.model.character.CharacterOriginBo
 import com.example.domain_layer.model.episode.EpisodeBo
 import com.example.presentation_layer.feature.episode.detail.viewmodel.EpisodeDetailState
 import com.example.presentation_layer.ui.theme.Gray
@@ -164,9 +164,9 @@ fun PreviewEpisode() {
                     gender = "Male",
                     id = 1,
                     image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                    location = LocationBo(name = "Earth", url = ""),
+                    location = CharacterLocationBo(name = "Earth", url = ""),
                     name = "Morty",
-                    origin = OriginBo(name = "Earth", url = ""),
+                    origin = CharacterOriginBo(name = "Earth", url = ""),
                     species = "Human",
                     status = CharacterStatus.DEAD,
                     type = "",
