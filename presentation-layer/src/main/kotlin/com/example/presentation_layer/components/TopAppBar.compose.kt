@@ -67,7 +67,7 @@ fun AppBar(
 @Composable
 fun PreviewAppBar() {
     AppBar(
-        showBackButton = false,
+        showBackButton = true,
         title = mutableStateOf("Characters"),
         onBackPressed = {}
     )

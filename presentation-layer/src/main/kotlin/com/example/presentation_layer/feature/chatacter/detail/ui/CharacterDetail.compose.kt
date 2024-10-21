@@ -34,9 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.CharacterLocationBo
@@ -53,7 +55,7 @@ import com.example.presentation_layer.ui.theme.purple
 
 @Composable
 fun CharacterDetailScreenView(
-    onBackPressedAction: () -> Unit,
+    onRefreshAction: () -> Unit,
     characterDetailState: CharacterDetailState,
     onEpisodeClickAction: (Int) -> Unit
 ) {
@@ -72,7 +74,7 @@ fun CharacterDetailScreenView(
             )
 
             is CharacterDetailState.Error -> ErrorScreen(
-                onRefreshClick = onBackPressedAction,
+                onRefreshClick = onRefreshAction,
                 image = R.drawable.error,
                 message = R.string.error_message
             )
@@ -88,7 +90,6 @@ fun DataScreen(
     episodeList: List<EpisodeBo>,
     onEpisodeClick: (Int) -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -156,7 +157,10 @@ fun BodyDetail(character: CharacterBo) {
             style = MaterialTheme.typography.titleLarge
         )
         AsyncImage(
-            model = character.image,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(character.image)
+                .error(R.drawable.error_image)
+                .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -270,7 +274,7 @@ fun EpisodeItem(episode: EpisodeBo, onEpisodeClick: (Int) -> Unit) {
 @Composable
 fun PreviewData() {
     CharacterDetailScreenView(
-        onBackPressedAction = {},
+        onRefreshAction = {},
         characterDetailState = CharacterDetailState.Data(
             character = CharacterBo(
                 created = "",

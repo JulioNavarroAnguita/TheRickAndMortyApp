@@ -35,13 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.domain_layer.model.character.CharacterBo
-import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
+import com.example.domain_layer.model.character.CharacterStatus
 import com.example.presentation.R
 import com.example.presentation_layer.components.EmptyScreen
 import com.example.presentation_layer.components.ErrorScreen
@@ -61,7 +63,8 @@ fun CharacterListScreenView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.White)
+            .background(color = Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (state) {
             is CharacterListState.Data -> CharacterListDataScreen(
@@ -76,7 +79,15 @@ fun CharacterListScreenView(
                 message = R.string.error_message
             )
 
-            CharacterListState.Loading -> CircularProgressIndicator()
+            CharacterListState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
@@ -144,7 +155,10 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
                 .height(120.dp)
         ) {
             AsyncImage(
-                model = character.image,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(character.image)
+                    .error(R.drawable.error_image)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

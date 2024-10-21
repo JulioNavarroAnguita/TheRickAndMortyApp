@@ -88,7 +88,7 @@ fun RickAndMortyNavGraph() {
                 showBackButton = showBackButton.value,
                 title = title
             ) {
-                navController.popBackStack() // arreglar toolbar generico
+                navController.popBackStack()
             }
         },
         bottomBar = {
@@ -135,9 +135,6 @@ fun RickAndMortyNavGraph() {
                 CharacterDetailScreen(
                     viewModel { characterDetailViewModel },
                     itemId = character.itemId,
-                    onBackPressed = {
-                        navController.popBackStack()
-                    },
                     onEpisodeClick = { episodeId ->
 
                     }
@@ -261,14 +258,13 @@ fun CharactersHomeScreen(
 fun CharacterDetailScreen(
     viewModel: CharacterDetailViewModel,
     itemId: Int,
-    onBackPressed: () -> Unit,
     onEpisodeClick: (Int) -> Unit
 ) {
     viewModel.fetchCharacterDetail(itemId)
     val state by viewModel.state.collectAsState()
     CharacterDetailScreenView(
-        onBackPressedAction = {
-            onBackPressed()
+        onRefreshAction = {
+            viewModel.fetchCharacterDetail(itemId)
         },
         characterDetailState = state,
         onEpisodeClickAction = { episodeId ->

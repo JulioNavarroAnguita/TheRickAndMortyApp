@@ -70,7 +70,15 @@ fun EpisodeListScreenView(
                 message = R.string.error_message
             )
 
-            EpisodeListState.Loading -> CircularProgressIndicator()
+            EpisodeListState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }

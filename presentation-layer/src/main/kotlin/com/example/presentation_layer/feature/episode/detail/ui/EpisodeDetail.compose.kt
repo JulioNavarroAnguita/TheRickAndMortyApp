@@ -22,15 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
 import com.example.domain_layer.model.episode.EpisodeBo
+import com.example.presentation.R
 import com.example.presentation_layer.feature.episode.detail.viewmodel.EpisodeDetailState
 import com.example.presentation_layer.ui.theme.Gray
 import com.example.presentation_layer.ui.theme.White80
@@ -50,7 +53,15 @@ fun EpisodeDetailScreenView(
             is EpisodeDetailState.Error -> {
                 // manejar error
             }
-            EpisodeDetailState.Loading -> CircularProgressIndicator() // ajustar todos los CircularProgressIndicator
+            EpisodeDetailState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }
@@ -74,7 +85,7 @@ fun EpisodeDetailData(episodeDetailState: EpisodeDetailState.Data) {
 }
 
 @Composable
-fun CharacterItem(characterBo: CharacterBo) {
+fun CharacterItem(character: CharacterBo) {
     Card(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
@@ -85,7 +96,10 @@ fun CharacterItem(characterBo: CharacterBo) {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
-                model = characterBo.image,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(character.image)
+                    .error(R.drawable.error_image)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -100,7 +114,7 @@ fun CharacterItem(characterBo: CharacterBo) {
                 Text(
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = characterBo.name,
+                    text = character.name,
                     color = White80,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
