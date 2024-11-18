@@ -15,9 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,7 +27,7 @@ import com.example.presentation_layer.ui.theme.White80
 @Composable
 fun AppBar(
     showBackButton: Boolean,
-    title: MutableState<String>,
+    title: AnnotatedString,
     onBackPressed: () -> Unit
 ) {
     Column {
@@ -36,7 +35,7 @@ fun AppBar(
             modifier = Modifier.fillMaxWidth(),
             title = {
                 Text(
-                    text = title.value,
+                    text = title,
                     textAlign = TextAlign.Center,
                     fontSize = 28.sp,
                     style = MaterialTheme.typography.displayLarge
@@ -68,7 +67,7 @@ fun AppBar(
 fun PreviewAppBar() {
     AppBar(
         showBackButton = true,
-        title = mutableStateOf("Characters"),
+        title = AnnotatedString("Characters"),
         onBackPressed = {}
     )
 }

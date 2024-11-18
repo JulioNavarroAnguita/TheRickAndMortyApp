@@ -1,5 +1,3 @@
-@file:Suppress("PLUGIN_IS_NOT_ENABLED")
-
 package com.example.presentation_layer.navigation
 
 import CharacterDetailScreenView
@@ -14,14 +12,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +41,11 @@ import com.example.presentation_layer.feature.episode.list.ui.EpisodeListScreenV
 import com.example.presentation_layer.feature.episode.list.viewmodel.EpisodeListViewModel
 import com.example.presentation_layer.feature.location.list.ui.LocationListScreenView
 import com.example.presentation_layer.feature.location.list.viewmodel.LocationListViewModel
-import com.example.presentation_layer.navigation.NavigationScreen.*
+import com.example.presentation_layer.navigation.NavigationScreen.CharacterDetail
+import com.example.presentation_layer.navigation.NavigationScreen.CharactersHome
+import com.example.presentation_layer.navigation.NavigationScreen.EpisodeDetail
+import com.example.presentation_layer.navigation.NavigationScreen.EpisodesHome
+import com.example.presentation_layer.navigation.NavigationScreen.LocationsHome
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -69,13 +74,10 @@ sealed interface NavigationScreen {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RickAndMortyNavGraph() {
-    val modalBottomSheetState = rememberModalBottomSheetState(false)
-    val scope = rememberCoroutineScope()
     val navController = rememberNavController()
-    var selectedTabIndex = remember { mutableStateOf(0) }
-    val titleFromResource = stringResource(id = R.string.characters)
-    var title = remember { mutableStateOf(titleFromResource) }
-    var showBackButton = remember { mutableStateOf(false) }
+    val selectedTabIndex = remember { mutableIntStateOf(0) }
+    val title = remember { mutableStateOf(AnnotatedString("")) }
+    val showBackButton = remember { mutableStateOf(false) }
 
     var showBottomBar by remember { mutableStateOf(true) }
     val animatedOffset = animateDpAsState(
@@ -86,7 +88,7 @@ fun RickAndMortyNavGraph() {
         topBar = {
             AppBar(
                 showBackButton = showBackButton.value,
-                title = title
+                title = title.value
             ) {
                 navController.popBackStack()
             }
@@ -96,11 +98,11 @@ fun RickAndMortyNavGraph() {
                 Box(modifier = Modifier.offset(y = animatedOffset.value)) {
                     MyBottomBar(
                         selectedTabIndex = selectedTabIndex,
-                        onNavigationItemClick = { navigationScreen -> // arreglar navegacion
+                        onNavigationItemClick = { navigationScreen ->
                             navController.navigate(navigationScreen) {
-                                if (navigationScreen is CharactersHome) popUpTo<CharactersHome> {
-                                    inclusive = true
-                                } else popUpTo<CharactersHome> { inclusive = false }
+                                popUpTo<CharactersHome> {
+                                    inclusive = navigationScreen is CharactersHome
+                                }
                             }
                         })
                 }
@@ -115,10 +117,13 @@ fun RickAndMortyNavGraph() {
             // Character
             composable<CharactersHome> {
                 val characterListViewModel: CharacterListViewModel = hiltViewModel()
-                showBottomBar = true
-                selectedTabIndex.value = 0
-                showBackButton.value = false
-                title.value = stringResource(id = R.string.characters)
+                val charactersTitle = stringResource(id = R.string.characters)
+                LaunchedEffect(Unit) {
+                    showBottomBar = true
+                    selectedTabIndex.intValue = 0
+                    showBackButton.value = false
+                    title.value = AnnotatedString(charactersTitle)
+                }
                 CharactersHomeScreen(
                     viewModel { characterListViewModel },
                     navigateToCharacterDetail = { id ->
@@ -129,9 +134,12 @@ fun RickAndMortyNavGraph() {
             composable<CharacterDetail> { navBackStackEntry ->
                 val character = requireNotNull(navBackStackEntry.toRoute<CharacterDetail>())
                 val characterDetailViewModel: CharacterDetailViewModel = hiltViewModel()
-                showBottomBar = false
-                showBackButton.value = true
-                title.value = stringResource(id = R.string.character_detail)
+                val characterDetailTitle = stringResource(id = R.string.character_detail)
+                LaunchedEffect(Unit) {
+                    showBottomBar = false
+                    showBackButton.value = true
+                    title.value = AnnotatedString(characterDetailTitle)
+                }
                 CharacterDetailScreen(
                     viewModel { characterDetailViewModel },
                     itemId = character.itemId,
@@ -144,10 +152,13 @@ fun RickAndMortyNavGraph() {
             // Epsiode
             composable<EpisodesHome> {
                 val episodeListViewModel: EpisodeListViewModel = hiltViewModel()
-                showBottomBar = true
-                showBackButton.value = false
-                selectedTabIndex.value = 1
-                title.value = stringResource(id = R.string.episodes)
+                val episodesTitle = stringResource(id = R.string.episodes)
+                LaunchedEffect(Unit) {
+                    showBottomBar = true
+                    showBackButton.value = false
+                    selectedTabIndex.intValue = 1
+                    title.value = AnnotatedString(episodesTitle)
+                }
                 EpisodesHomeScreen(
                     viewModel { episodeListViewModel },
                     navigateToEpisodeDetail = { episodeId ->
@@ -158,9 +169,12 @@ fun RickAndMortyNavGraph() {
             composable<EpisodeDetail> { navBackStackEntry ->
                 val episodeId = requireNotNull(navBackStackEntry.toRoute<EpisodeDetail>()).episodeId
                 val episodeDetailViewModel: EpisodeDetailViewModel = hiltViewModel()
-                showBottomBar = false
-                showBackButton.value = true
-                title.value = stringResource(id = R.string.episode_detail)
+                val episodeDetailTitle = stringResource(id = R.string.episode_detail)
+                LaunchedEffect(Unit) {
+                    showBottomBar = false
+                    showBackButton.value = true
+                    title.value = AnnotatedString(episodeDetailTitle)
+                }
                 EpisodeDetailScreen(
                     viewModel { episodeDetailViewModel },
                     itemId = episodeId
@@ -169,20 +183,22 @@ fun RickAndMortyNavGraph() {
             // Location
             composable<LocationsHome> {
                 val locationListViewModel: LocationListViewModel = hiltViewModel()
-                showBottomBar = true
-                showBackButton.value = false
-                selectedTabIndex.value = 2
-                title.value = stringResource(id = R.string.locations)
+                val locationsTitle = stringResource(id = R.string.locations)
+                LaunchedEffect(Unit) {
+                    showBottomBar = true
+                    showBackButton.value = false
+                    selectedTabIndex.intValue = 2
+                    title.value = AnnotatedString(locationsTitle)
+                }
                 LocationsHomeScreen(
-                    viewModel { locationListViewModel },
-                    navigateToLocationDetail = { locationId ->
-//                        navController.navigate(EpisodeDetail(episodeId = episodeId))
-                    }
+                    viewModel { locationListViewModel }
                 )
             }
         }
     }
 }
+
+
 
 
 @Composable
@@ -196,6 +212,9 @@ fun EpisodesHomeScreen(
         onClickItem = { itemId ->
             navigateToEpisodeDetail(itemId)
         },
+
+
+
         onRefreshAction = {
 //            viewModel.fetchCharacterList()
         }
@@ -204,22 +223,17 @@ fun EpisodesHomeScreen(
 
 @Composable
 fun LocationsHomeScreen(
-    viewModel: LocationListViewModel,
-    navigateToLocationDetail: (Int) -> Unit
+    viewModel: LocationListViewModel
 ) {
     val state by viewModel.state.collectAsState()
     LocationListScreenView(
         state = state,
-        onClickItem = { itemId ->
-//            navigateToEpisodeDetail(itemId)
-        },
         onRefreshAction = {
 //            viewModel.fetchCharacterList()
         }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EpisodeDetailScreen(
     viewModel: EpisodeDetailViewModel,

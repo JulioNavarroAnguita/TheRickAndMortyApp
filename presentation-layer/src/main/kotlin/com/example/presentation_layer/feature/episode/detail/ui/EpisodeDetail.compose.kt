@@ -14,10 +14,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,41 +36,51 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.domain_layer.model.character.CharacterBo
-import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
+import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.episode.EpisodeBo
 import com.example.presentation.R
 import com.example.presentation_layer.feature.episode.detail.viewmodel.EpisodeDetailState
 import com.example.presentation_layer.ui.theme.Gray
 import com.example.presentation_layer.ui.theme.White80
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EpisodeDetailScreenView(
     episodeDetailState: EpisodeDetailState
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White)
-            .padding(16.dp)
-    ) {
-        when (episodeDetailState) {
-            is EpisodeDetailState.Data -> EpisodeDetailData(episodeDetailState = episodeDetailState)
-            is EpisodeDetailState.Error -> {
-                // manejar error
-            }
-            EpisodeDetailState.Loading -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
+  /*  var isSheetVisible by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(false)
+
+    ModalBottomSheet(
+        onDismissRequest = { isSheetVisible = false },
+        sheetState = bottomSheetState
+    ) {*/
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
+                .padding(16.dp)
+        ) {
+            when (episodeDetailState) {
+                is EpisodeDetailState.Data -> EpisodeDetailData(episodeDetailState = episodeDetailState)
+                is EpisodeDetailState.Error -> {
+                    // manejar error
+                }
+
+                EpisodeDetailState.Loading -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
-    }
+//    }
 }
 
 @Composable

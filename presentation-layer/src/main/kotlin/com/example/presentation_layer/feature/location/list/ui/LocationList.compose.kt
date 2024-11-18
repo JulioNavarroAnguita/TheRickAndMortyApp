@@ -37,7 +37,6 @@ import com.google.accompanist.flowlayout.FlowRow
 @Composable
 fun LocationListScreenView(
     state: LocationListState,
-    onClickItem: (Int) -> Unit,
     onRefreshAction: () -> Unit,
 ) {
     Column(
@@ -47,7 +46,6 @@ fun LocationListScreenView(
     ) {
         when (state) {
             is LocationListState.Data -> LocationListDataScreen(
-                onClickItem = onClickItem,
                 locationList = state.locations
             )
 
@@ -72,7 +70,6 @@ fun LocationListScreenView(
 
 @Composable
 fun LocationListDataScreen(
-    onClickItem: (Int) -> Unit,
     locationList: List<LocationBo>
 ) {
     if (locationList.isNotEmpty()) {
@@ -81,7 +78,7 @@ fun LocationListDataScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(8.dp))
-            LocationList(locationList = locationList, onClickItem = onClickItem)
+            LocationList(locationList = locationList)
             Spacer(modifier = Modifier.height(8.dp))
         }
     } else EmptyScreen(image = R.drawable.empty_screen, message = R.string.empty_list)
@@ -89,7 +86,7 @@ fun LocationListDataScreen(
 }
 
 @Composable
-fun LocationList(locationList: List<LocationBo>, onClickItem: (Int) -> Unit) {
+fun LocationList(locationList: List<LocationBo>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize()
@@ -191,7 +188,6 @@ fun LocationListPreview() {
                 )
             )
         ),
-        onClickItem = {},
         onRefreshAction = {},
     )
 }
