@@ -6,6 +6,7 @@ import com.example.data_layer.model.character.characterListDtoToBo
 import com.example.data_layer.model.common.FailureDto
 import com.example.data_layer.model.common.failureDtoToBo
 import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterFetcherType
 import com.example.domain_layer.model.common.FailureBo
 import com.example.domain_layer.utils.CharacterRepository
 import com.example.domain_layer.utils.Either
@@ -13,36 +14,17 @@ import javax.inject.Inject
 
 class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDataSource: CharacterRemoteDataSource) :
     CharacterRepository {
-    override suspend fun fetchAllCharacters() = try {
-        val response = characterRemoteDataSource.getCharactersFromService()
-        if (response.isSuccessful) {
-            response.body()?.characterList?.characterListDtoToBo()?.let { characterList ->
-                Either.Success(data = characterList)
-            } ?: run {
-                Either.Error(
-                    FailureDto.UnexpectedFailure(
-                        code = response.code(),
-                        localizedMessage = response.message()
-                    ).failureDtoToBo()
-                )
-            }
-        } else {
-            Either.Error(
-                FailureDto.UnexpectedFailure(
-                    code = response.code(),
-                    localizedMessage = response.message()
-                ).failureDtoToBo()
-            )
-        }
-    } catch (e: Exception) {
-        Either.Error(FailureDto.Unknown.failureDtoToBo())
-    }
 
-    override suspend fun filterCharacterListByStatusUseCase(params: String) = try {
-        val queryParams = mutableMapOf<String, String>()
-        queryParams["status"] = params
-        val response =
-            characterRemoteDataSource.getCharactersFromServiceByFilter(filterOptions = queryParams)
+    companion object {
+        private const val STATUS_TAG = "status"
+        private const val NAME_TAG = "name"    }
+
+    override suspend fun fetchCharacters(fetcherType: CharacterFetcherType) = try {
+        val response = when (fetcherType) {
+            is CharacterFetcherType.All -> characterRemoteDataSource.getCharactersFromService()
+            is CharacterFetcherType.ByName -> characterRemoteDataSource.filterCharactersByNameFromService(name = mapOf(NAME_TAG to fetcherType.name))
+            is CharacterFetcherType.Filtered -> characterRemoteDataSource.getCharactersFilteredFromService(filterOptions = mapOf(STATUS_TAG to fetcherType.filter))
+        }
         if (response.isSuccessful) {
             response.body()?.characterList?.characterListDtoToBo()?.let { characterList ->
                 Either.Success(data = characterList)
@@ -56,9 +38,9 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
             }
         } else {
             Either.Error(
-                FailureDto.UnexpectedFailure(
+                FailureDto.ServerError(
                     code = response.code(),
-                    localizedMessage = response.message()
+                    message = response.message()
                 ).failureDtoToBo()
             )
         }
@@ -68,7 +50,7 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
 
     override suspend fun fetchCharacter(id: Int): Either<FailureBo, CharacterBo> = try {
         val response =
-            characterRemoteDataSource.getCharacterFromService(id = id) // TODO: arreglar esto haciendo mapping hacia dto
+            characterRemoteDataSource.getCharacterFromService(id = id)
         if (response.isSuccessful) {
             response.body()?.characterDtoToBo()?.let { character ->
                 Either.Success(data = character)
@@ -82,9 +64,9 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
             }
         } else {
             Either.Error(
-                FailureDto.UnexpectedFailure(
+                FailureDto.ServerError(
                     code = response.code(),
-                    localizedMessage = response.message()
+                    message = response.message()
                 ).failureDtoToBo()
             )
         }
@@ -92,11 +74,11 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
         Either.Error(FailureDto.Unknown.failureDtoToBo())
     }
 
-    override suspend fun fetchCharacterListWithParams(path: String) = try {
-        val response = characterRemoteDataSource.getMultipleCharactersFromService(path)
+    override suspend fun fetchEpisodeCharacters(path: String) = try {
+        val response = characterRemoteDataSource.fetchEpisodeCharactersFromService(path)
         if (response.isSuccessful) {
-            response.body()?.characterListDtoToBo()?.let { episodeList ->
-                Either.Success(data = episodeList)
+            response.body()?.characterListDtoToBo()?.let { characterList ->
+                Either.Success(data = characterList)
             } ?: run {
                 Either.Error(
                     FailureDto.UnexpectedFailure(
@@ -107,9 +89,9 @@ class CharacterRepositoryImpl @Inject constructor(private val characterRemoteDat
             }
         } else {
             Either.Error(
-                FailureDto.UnexpectedFailure(
+                FailureDto.ServerError(
                     code = response.code(),
-                    localizedMessage = response.message()
+                    message = response.message()
                 ).failureDtoToBo()
             )
         }

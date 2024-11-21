@@ -14,28 +14,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -52,9 +62,11 @@ import com.example.presentation_layer.ui.theme.Green40
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
 import com.example.presentation_layer.ui.theme.purple
+import com.example.presentation_layer.utils.debounce
 
 @Composable
 fun CharacterListScreenView(
+    onSearchClicked: (String) -> Unit,
     state: CharacterListState,
     onClickAction: (CharacterStatus) -> Unit,
     onClickItem: (Int) -> Unit,
@@ -62,15 +74,15 @@ fun CharacterListScreenView(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (state) {
             is CharacterListState.Data -> CharacterListDataScreen(
                 onClickAction = onClickAction,
                 onClickItemAction = onClickItem,
-                characterList = state.characters
+                characterList = state.characters,
+                onSearchClicked = onSearchClicked
             )
 
             is CharacterListState.Error -> ErrorScreen(
@@ -94,6 +106,7 @@ fun CharacterListScreenView(
 
 @Composable
 fun CharacterListDataScreen(
+    onSearchClicked: (String) -> Unit,
     onClickAction: (CharacterStatus) -> Unit,
     onClickItemAction: (Int) -> Unit,
     characterList: List<CharacterBo>
@@ -104,7 +117,7 @@ fun CharacterListDataScreen(
                 .padding(horizontal = 16.dp)
         ) {
             ChipGroup(onClickAction)
-            Spacer(modifier = Modifier.height(8.dp))
+            SearchBarCharacters(onSearchClicked = onSearchClicked)
             BodyCharacterList(
                 characterList = characterList,
                 onClickItem = onClickItemAction
@@ -115,12 +128,75 @@ fun CharacterListDataScreen(
 }
 
 @Composable
+fun SearchBarCharacters(onSearchClicked: (String) -> Unit) {
+    var text by rememberSaveable { mutableStateOf("") }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    OutlinedTextField(
+        value = text,
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                if (text.isNotEmpty()) {
+                    onSearchClicked(text)
+                    expanded = false
+                    text = ""
+                }
+            }
+        ),
+        onValueChange = {
+            text = it
+            if (text.isNotEmpty()) expanded = true else expanded = false
+
+        },
+        leadingIcon = {
+            IconButton(
+                onClick = {
+                    onSearchClicked(text)
+                    expanded = false
+                    text = ""
+                },
+                enabled = text.isNotEmpty()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = purple
+                )
+            }
+        },
+        trailingIcon = {
+            if (expanded) {
+                IconButton(
+                    onClick = {
+                        expanded = false
+                        text = ""
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = purple
+                    )
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        placeholder = { Text(text = "Search") }
+    )
+}
+
+@Composable
 fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Unit) {
     val listState = rememberLazyListState()
 
-    // Efecto para mover el scroll hacia arriba al actualizar la lista
     LaunchedEffect(characterList) {
-        listState.scrollToItem(0) // Mover el scroll al inicio
+        listState.scrollToItem(0)
     }
     LazyColumn(
         state = listState,
@@ -142,13 +218,11 @@ fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Un
 fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .debounce { onClickItem(character.id) },
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
-        ),
-        onClick = {
-            onClickItem(character.id)
-        }
+        )
     ) {
         Row(
             modifier = Modifier
@@ -168,14 +242,14 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
             Column(
                 modifier = Modifier
                     .padding(8.dp)
-                    .weight(2f) // Para que ocupe más espacio
+                    .weight(2f)
             ) {
                 Text(
                     text = character.name,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Origin",
+                    text = stringResource(R.string.origin),
                     style = MaterialTheme.typography.titleSmall,
                     color = purple
                 )
@@ -184,7 +258,7 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Status",
+                    text = stringResource(R.string.status),
                     style = MaterialTheme.typography.titleSmall,
                     color = purple
                 )
@@ -227,7 +301,7 @@ fun ChipGroup(
 
         var selectedChipIndex by remember { mutableStateOf(-1) }
 
-        val chipLabels = CharacterStatus.values()
+        val chipLabels = CharacterStatus.entries.toTypedArray()
         chipLabels.forEachIndexed { index, label ->
             FilterChip(
                 selected = selectedChipIndex == index,
@@ -288,6 +362,7 @@ fun CharacterListScreenPreview() {
         ),
         onClickItem = {},
         onClickAction = {},
-        onRefreshAction = {}
+        onRefreshAction = {},
+        onSearchClicked = {}
     )
 }

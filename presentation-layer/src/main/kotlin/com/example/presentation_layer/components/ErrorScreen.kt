@@ -55,7 +55,9 @@ fun ErrorScreen(onRefreshClick: () -> Unit, @DrawableRes image: Int, @StringRes 
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center
         )
-        Button(onClick = { onRefreshClick() }) {
+        Button(
+            onClick = { onRefreshClick() }
+        ) {
             Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Retry")
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = stringResource(R.string.reload))

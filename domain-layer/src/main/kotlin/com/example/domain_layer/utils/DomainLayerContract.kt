@@ -2,15 +2,14 @@ package com.example.domain_layer.utils
 
 import com.example.domain_layer.model.LocationResultBo.LocationBo
 import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterFetcherType
 import com.example.domain_layer.model.common.FailureBo
 import com.example.domain_layer.model.episode.EpisodeBo
 
 interface CharacterRepository {
-    suspend fun fetchAllCharacters(): Either<FailureBo, List<CharacterBo>>
-    suspend fun filterCharacterListByStatusUseCase(params: String): Either<FailureBo, List<CharacterBo>>
+    suspend fun fetchCharacters(fetcherType: CharacterFetcherType): Either<FailureBo, List<CharacterBo>>
     suspend fun fetchCharacter(id: Int): Either<FailureBo, CharacterBo>
-    suspend fun fetchCharacterListWithParams(path: String): Either<FailureBo, List<CharacterBo>>
-
+    suspend fun fetchEpisodeCharacters(path: String): Either<FailureBo, List<CharacterBo>>
 }
 
 interface EpisodeRepository {

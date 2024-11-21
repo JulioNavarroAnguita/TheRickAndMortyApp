@@ -17,19 +17,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,41 +39,32 @@ import com.example.presentation_layer.feature.episode.detail.viewmodel.EpisodeDe
 import com.example.presentation_layer.ui.theme.Gray
 import com.example.presentation_layer.ui.theme.White80
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EpisodeDetailScreenView(
     episodeDetailState: EpisodeDetailState
 ) {
-  /*  var isSheetVisible by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState(false)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        when (episodeDetailState) {
+            is EpisodeDetailState.Data -> EpisodeDetailData(episodeDetailState = episodeDetailState)
+            is EpisodeDetailState.Error -> {
+                // manejar error
+            }
 
-    ModalBottomSheet(
-        onDismissRequest = { isSheetVisible = false },
-        sheetState = bottomSheetState
-    ) {*/
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.White)
-                .padding(16.dp)
-        ) {
-            when (episodeDetailState) {
-                is EpisodeDetailState.Data -> EpisodeDetailData(episodeDetailState = episodeDetailState)
-                is EpisodeDetailState.Error -> {
-                    // manejar error
-                }
-
-                EpisodeDetailState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            EpisodeDetailState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }
+    }
 //    }
 }
 
@@ -93,7 +78,7 @@ fun EpisodeDetailData(episodeDetailState: EpisodeDetailState.Data) {
     with(episodeDetailState.characters) {
         if (this.isNotEmpty()) {
             Text(
-                text = "Characters",
+                text = stringResource(R.string.characters),
                 style = MaterialTheme.typography.headlineMedium
             )
             EpisodeBodyDetail(characterList = this)

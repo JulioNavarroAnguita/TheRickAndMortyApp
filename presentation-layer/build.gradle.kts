@@ -1,11 +1,10 @@
 plugins {
-    id("kotlin-android")
-    id("com.android.library")
-    id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
-    id("kotlinx-serialization")
+    alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.plugin)
+    alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.compose.compiler)
 }
 
 
@@ -41,70 +40,52 @@ dependencies {
 
     implementation(project(":domain-layer"))
 
-    // RETROFIT
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
-    // INTERCEPTOR
+    // Interceptor
     implementation(libs.logging.interceptor)
     implementation(libs.lifecycle.viewmodel.compose)
 
-    // Viewmodel
+    // ViewModel
     implementation(libs.lifecycle.viewmodel.ktx)
-    // Paging3
-    implementation(libs.paging.compose)
-    implementation(libs.paging.runtime.ktx)
 
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.google.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-
     // Accompanist
     implementation(libs.accompanist.flowlayout)
 
-
-    // Icons Material Design
+    // Material
+    implementation(libs.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.material.icons.core)
     implementation(libs.material.icons.extended)
     implementation(libs.material)
     implementation(libs.ui.layout)
-    // Material3
-    implementation(libs.material3)
-    implementation(libs.ui) // Usa la versión más reciente
-    implementation(libs.material.icons.core)
+
     // KotlinSerialization
-    implementation(libs.kotlinx.serialization.json) // Use the latest version
+    implementation(libs.kotlinx.serialization.json)
 
     // Coil
     implementation(libs.coil.compose)
+
     // Navigation
     implementation(libs.navigation.compose)
-
-    implementation("androidx.compose.material3:material3-adaptive-navigation-suite")
-
-
-    // For instrumentation tests
-    androidTestImplementation(libs.google.hilt.android.testing)
-    kaptAndroidTest(libs.google.hilt.compiler)
-
-    // For local unit tests
-    testImplementation(libs.google.hilt.android.testing)
-    kaptTest(libs.google.hilt.compiler)
 
     implementation(libs.androidx.core)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+
+    androidTestImplementation(libs.google.hilt.android.testing)
+    kaptAndroidTest(libs.google.hilt.compiler)
+    testImplementation(libs.google.hilt.android.testing)
+    kaptTest(libs.google.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    debugImplementation(libs.compose.ui.tooling)
 }

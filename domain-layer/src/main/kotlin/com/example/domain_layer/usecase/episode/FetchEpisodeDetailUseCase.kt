@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class FetchEpisodeDetailUseCase @Inject constructor(private val episodeRepository: EpisodeRepository) {
 
-    suspend fun fetchEpisodeDetail(id: Int) = flow { emit(episodeRepository.fetchEpisode(id = id)) }
+    fun fetchEpisodeDetail(id: Int) = flow { emit(episodeRepository.fetchEpisode(id = id)) }
 
 }

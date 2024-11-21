@@ -8,4 +8,10 @@
     <string name="locations">Locations</string>
     <string name="character_detail">Character Detail</string>
     <string name="episode_detail">Episode Detail</string>
+    <string name="origin">Origin</string>
+    <string name="first_location">First Location</string>
+    <string name="last_location">Last Location</string>
+    <string name="species">Species</string>
+    <string name="status">Status</string>
+    <string name="dimension">Dimension:</string>
 </resources>

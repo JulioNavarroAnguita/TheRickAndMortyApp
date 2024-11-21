@@ -26,7 +26,7 @@ fun CharacterDto.characterDtoToBo() = CharacterBo(
     url = url ?: DEFAULT_STRING
 )
 
-fun fromString(value: String?) = CharacterStatus.values().find { it.value.equals(value, ignoreCase = true) } // TODO: extensions Utils
+fun fromString(value: String?) = CharacterStatus.entries.find { it.value.equals(value, ignoreCase = true) } // TODO: extensions Utils
 
 fun CharacterLocationDto.locationDtoToBo() = CharacterLocationBo(
     name = name ?: DEFAULT_STRING,

@@ -11,14 +11,8 @@ fun InfoDto.toInfoBo() = InfoBo(
 )
 
 fun FailureDto.failureDtoToBo(): FailureBo = when (this) {
-    is FailureDto.ClientError -> FailureBo.ClientError(code, message ?: DEFAULT_STRING)
-    is FailureDto.EmptyResponse -> FailureBo.EmptyResponse(message ?: DEFAULT_STRING)
     FailureDto.NoNetwork -> FailureBo.NoNetwork
-    is FailureDto.ServerError -> FailureBo.ServerError(code, message ?: DEFAULT_STRING)
-    is FailureDto.UnexpectedFailure -> FailureBo.UnexpectedFailure(
-        code,
-        localizedMessage ?: DEFAULT_STRING
-    )
-
+    is FailureDto.ServerError -> FailureBo.ServerError(code = code, message = message ?: DEFAULT_STRING)
+    is FailureDto.UnexpectedFailure -> FailureBo.UnexpectedFailure(code = code, localizedMessage = localizedMessage ?: DEFAULT_STRING)
     FailureDto.Unknown -> FailureBo.Unknown
 }

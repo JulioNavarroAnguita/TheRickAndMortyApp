@@ -6,6 +6,6 @@ import javax.inject.Inject
 
 class FetchCharacterDetailUseCase @Inject constructor(private val characterRepository: CharacterRepository) {
 
-    suspend fun fetchCharacterDetail(id: Int) = flow { emit(characterRepository.fetchCharacter(id = id)) }
+    fun fetchCharacterDetail(id: Int) = flow { emit(characterRepository.fetchCharacter(id = id)) }
 
 }

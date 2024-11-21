@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import com.example.presentation_layer.navigation.RickAndMortyApp
-import com.example.presentation_layer.ui.theme.TheRickAndMortyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -15,9 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            TheRickAndMortyAppTheme {
-                RickAndMortyApp()
-            }
+            RickAndMortyApp()
         }
     }
 }

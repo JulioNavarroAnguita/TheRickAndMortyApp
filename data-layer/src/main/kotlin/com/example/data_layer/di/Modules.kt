@@ -6,7 +6,9 @@ import com.example.data_layer.datasource.location.LocationRemoteDataSource
 import com.example.data_layer.repository.character.CharacterRepositoryImpl
 import com.example.data_layer.repository.episode.EpisodeRepositoryImpl
 import com.example.data_layer.repository.location.LocationRepositoryImpl
-import com.example.data_layer.service.RickAndMortyService.*
+import com.example.data_layer.service.RickAndMortyService.CharacterService
+import com.example.data_layer.service.RickAndMortyService.EpisodeService
+import com.example.data_layer.service.RickAndMortyService.LocationService
 import com.example.domain_layer.utils.CharacterRepository
 import com.example.domain_layer.utils.EpisodeRepository
 import com.example.domain_layer.utils.LocationRepository

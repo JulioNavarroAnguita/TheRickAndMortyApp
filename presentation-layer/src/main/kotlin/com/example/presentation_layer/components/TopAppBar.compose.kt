@@ -1,11 +1,14 @@
 package com.example.presentation_layer.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.NightlightRound
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -15,21 +18,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.presentation_layer.ui.theme.White80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
     showBackButton: Boolean,
+    darkTheme: Boolean,
     title: AnnotatedString,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onDarkModeClicked: () -> Unit
 ) {
+
     Column {
         TopAppBar(
             modifier = Modifier.fillMaxWidth(),
@@ -44,12 +51,31 @@ fun AppBar(
             navigationIcon = {
                 if (showBackButton) {
                     IconButton(onClick = onBackPressed) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             },
+            actions = {
+                val iconRotation by animateFloatAsState(
+                    targetValue = if (darkTheme) 180f else 0f,
+                    label = ""
+                )
+                IconButton(onClick = {
+                    onDarkModeClicked()
+                }) {
+                    val icon =
+                        if (darkTheme) Icons.Default.WbSunny else Icons.Default.NightlightRound
+                    Icon(
+                        modifier = Modifier.graphicsLayer(rotationZ = iconRotation),
+                        imageVector = icon, contentDescription = "Dark Mode"
+                    )
+                }
+            },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = White80
+                containerColor = MaterialTheme.colorScheme.background
             )
         )
         HorizontalDivider(
@@ -68,6 +94,8 @@ fun PreviewAppBar() {
     AppBar(
         showBackButton = true,
         title = AnnotatedString("Characters"),
-        onBackPressed = {}
+        onBackPressed = {},
+        onDarkModeClicked = {},
+        darkTheme = true
     )
 }

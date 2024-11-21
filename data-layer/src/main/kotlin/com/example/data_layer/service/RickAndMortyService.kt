@@ -6,13 +6,13 @@ import com.example.data_layer.model.episode.EpisodeDto
 import com.example.data_layer.model.episode.EpisodeResultDto
 import com.example.data_layer.model.location.LocationDto
 import com.example.data_layer.model.location.LocationResultDto
-import com.example.data_layer.model.location.LocationResultDto.*
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
 interface RickAndMortyService {
+
     interface CharacterService {
         @GET("character/")
         suspend fun getCharacters(
@@ -20,16 +20,21 @@ interface RickAndMortyService {
 
         @GET("character/")
         suspend fun getCharactersByFilter(
-            @QueryMap filterOptions: Map<String, String>
+            @QueryMap filterOptions: Map<String, String>? = null
         ): Response<CharacterResultDto>
 
         @GET("character/{id}")
         suspend fun getCharacterById(@Path(value = "id") id: Int): Response<CharacterDto>
 
         @GET("character/{ids}")
-        suspend fun getMultipleCharacters(
+        suspend fun getEpisodeCharacters(
             @Path("ids") ids: String
         ): Response<List<CharacterDto>>
+
+        @GET("character/")
+        suspend fun filterCharacters(
+            @QueryMap name: Map<String, String>
+        ): Response<CharacterResultDto>
 
     }
 

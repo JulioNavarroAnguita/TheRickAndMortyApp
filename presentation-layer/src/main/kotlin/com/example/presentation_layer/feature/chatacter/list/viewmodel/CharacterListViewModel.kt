@@ -3,18 +3,17 @@ package com.example.presentation_layer.feature.chatacter.list.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterFetcherType
 import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.usecase.character.FetchCharacterListUseCase
-import com.example.domain_layer.usecase.character.FilterCharacterListByStatusUseCase
 import com.example.domain_layer.utils.Either
-import com.example.presentation_layer.feature.chatacter.detail.viewmodel.CharacterDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,8 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterListViewModel @Inject constructor(
-    private val fetchCharacterListUseCase: FetchCharacterListUseCase,
-    private val filterCharacterListByStatusUseCase: FilterCharacterListByStatusUseCase
+    private val fetchCharacterListUseCase: FetchCharacterListUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CharacterListState>(CharacterListState.Loading)
@@ -35,7 +33,7 @@ class CharacterListViewModel @Inject constructor(
 
     fun fetchCharacterList() {
         viewModelScope.launch {
-            fetchCharacterListUseCase.fetchCharacterList()
+            fetchCharacterListUseCase.fetchCharacterList(fetcherType = CharacterFetcherType.All())
                 .catch { error ->
                     _state.update {
                         CharacterListState.Error(error.message ?: "Unknown error")
@@ -62,8 +60,8 @@ class CharacterListViewModel @Inject constructor(
     fun onChipFilterAction(characterStatus: CharacterStatus) {
         viewModelScope.launch {
             if (characterStatus != CharacterStatus.ALL) {
-                filterCharacterListByStatusUseCase.filterCharacterListByStatusUseCase(
-                    characterStatus.value.lowercase()
+                fetchCharacterListUseCase.fetchCharacterList(
+                    fetcherType = CharacterFetcherType.Filtered(characterStatus.value.lowercase())
                 ).catch { error ->
                     _state.update {
                         CharacterListState.Error(error.message ?: "Unknown error")
@@ -86,6 +84,33 @@ class CharacterListViewModel @Inject constructor(
             } else {
                 fetchCharacterList()
             }
+        }
+    }
+
+    fun onSearchClicked(inputSearch: String) {
+        viewModelScope.launch {
+            fetchCharacterListUseCase.fetchCharacterList(fetcherType = CharacterFetcherType.ByName(inputSearch))
+                .onStart { _state.update { CharacterListState.Loading } }
+                .catch { error ->
+                    _state.update {
+                        CharacterListState.Error(error.message ?: "Unknown error")
+                    }
+                }
+                .collectLatest { result ->
+                    when (result) {
+                        is Either.Error -> {
+                            _state.update {
+                                CharacterListState.Error(message = "Error to load characters filtered")
+                            }
+                        }
+
+                        is Either.Success -> {
+                            _state.update {
+                                CharacterListState.Data(characters = result.data)
+                            }
+                        }
+                    }
+                }
         }
     }
 }

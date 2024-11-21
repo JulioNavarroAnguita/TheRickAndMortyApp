@@ -1,5 +1,6 @@
 package com.example.presentation_layer.components
 
+import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +15,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -60,7 +60,7 @@ fun MyBottomBar(
         NavigationBar(
             modifier = Modifier
                 .fillMaxWidth(),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             items.forEachIndexed { index, navigationItem ->
                 NavigationBarItem(
@@ -92,11 +92,12 @@ data class BottomNavigationItem(
     val route: NavigationScreen = NavigationScreen.CharactersHome
 )
 
+@SuppressLint("UnrememberedMutableState")
 @Preview(showBackground = true)
 @Composable
 fun PreviewBottomBar() {
     MyBottomBar(
-        selectedTabIndex = mutableStateOf(0),
+        selectedTabIndex = mutableIntStateOf(0),
         onNavigationItemClick = {}
     )
 }

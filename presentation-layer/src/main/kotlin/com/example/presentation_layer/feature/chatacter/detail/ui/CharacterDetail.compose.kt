@@ -1,5 +1,4 @@
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,14 +34,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.domain_layer.model.character.CharacterBo
-import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
+import com.example.domain_layer.model.character.CharacterStatus
 import com.example.domain_layer.model.episode.EpisodeBo
 import com.example.presentation.R
 import com.example.presentation_layer.components.ErrorScreen
@@ -52,6 +53,7 @@ import com.example.presentation_layer.ui.theme.Pink80
 import com.example.presentation_layer.ui.theme.PurpleGrey40
 import com.example.presentation_layer.ui.theme.Red40
 import com.example.presentation_layer.ui.theme.purple
+import com.example.presentation_layer.utils.debounce
 
 @Composable
 fun CharacterDetailScreenView(
@@ -61,8 +63,7 @@ fun CharacterDetailScreenView(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -109,7 +110,7 @@ fun DataScreen(
 @Composable
 fun EpisodeCarousel(episodes: List<EpisodeBo>, onEpisodeClick: (Int) -> Unit) {
     Text(
-        text = "Episodes",
+        text = stringResource(R.string.episodes),
         style = MaterialTheme.typography.displayMedium
     )
     Spacer(modifier = Modifier.height(8.dp))
@@ -160,12 +161,14 @@ fun BodyDetail(character: CharacterBo) {
             model = ImageRequest.Builder(LocalContext.current)
                 .data(character.image)
                 .error(R.drawable.error_image)
+                .crossfade(true)
                 .build(),
+            placeholder = painterResource(R.drawable.error_image),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(256.dp)
-                .clip(CircleShape)
+                .clip(CircleShape),
         )
     }
 }
@@ -176,7 +179,7 @@ fun FooterDetail(character: CharacterBo) {
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = "Origin",
+            text = stringResource(R.string.origin),
             color = purple,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -186,7 +189,7 @@ fun FooterDetail(character: CharacterBo) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "First Location",
+            text = stringResource(R.string.first_location),
             color = purple,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -196,7 +199,7 @@ fun FooterDetail(character: CharacterBo) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Last Location",
+            text = stringResource(R.string.last_location),
             color = purple,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -206,7 +209,7 @@ fun FooterDetail(character: CharacterBo) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Species",
+            text = stringResource(R.string.species),
             color = purple,
             style = MaterialTheme.typography.headlineMedium
         )
@@ -241,10 +244,8 @@ fun EpisodeItem(episode: EpisodeBo, onEpisodeClick: (Int) -> Unit) {
             .height(IntrinsicSize.Min)
             .border(
                 BorderStroke(2.dp, Color.Black), RoundedCornerShape(8.dp)
-            ),
-        onClick = {
-            onEpisodeClick(episode.id)
-        }
+            )
+            .debounce { onEpisodeClick(episode.id) }
     ) {
         Row(
             modifier = Modifier.padding(8.dp)

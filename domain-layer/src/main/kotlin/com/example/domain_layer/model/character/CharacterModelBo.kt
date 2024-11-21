@@ -38,3 +38,9 @@ enum class CharacterStatus(val value : String) {
     UNKNOWN("Unknown"),
     ALL("All");
 }
+
+sealed class CharacterFetcherType(val value: String? = null) {
+    class All : CharacterFetcherType()
+    class Filtered(val filter: String) : CharacterFetcherType(filter)
+    class ByName(val name: String) : CharacterFetcherType(name)
+}

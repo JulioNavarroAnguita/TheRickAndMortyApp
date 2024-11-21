@@ -7,8 +7,9 @@ import retrofit2.Response
 interface CharacterDataSource {
 
     suspend fun getCharactersFromService(): Response<CharacterResultDto>
-    suspend fun getCharactersFromServiceByFilter(filterOptions: Map<String, String>): Response<CharacterResultDto>
+    suspend fun getCharactersFilteredFromService(filterOptions: Map<String, String>? = null): Response<CharacterResultDto>
+    suspend fun filterCharactersByNameFromService(name: Map<String, String>): Response<CharacterResultDto>
     suspend fun getCharacterFromService(id: Int): Response<CharacterDto>
-    suspend fun getMultipleCharactersFromService(path: String): Response<List<CharacterDto>>
+    suspend fun fetchEpisodeCharactersFromService(path: String): Response<List<CharacterDto>>
 
 }

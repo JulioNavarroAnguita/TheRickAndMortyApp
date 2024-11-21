@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.episode.EpisodeBo
-import com.example.domain_layer.usecase.character.FetchCharacterListWithParamsUseCase
+import com.example.domain_layer.usecase.character.FetchCharactersFromEpisodeUseCase
 import com.example.domain_layer.usecase.episode.FetchEpisodeDetailUseCase
 import com.example.domain_layer.utils.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EpisodeDetailViewModel @Inject constructor(
     private val fetchEpisodeDetailUseCase: FetchEpisodeDetailUseCase,
-    private val fetchCharacterListWithParamsUseCase: FetchCharacterListWithParamsUseCase
+    private val fetchCharactersFromEpisodeUseCase: FetchCharactersFromEpisodeUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<EpisodeDetailState>(EpisodeDetailState.Loading)
@@ -46,12 +46,12 @@ class EpisodeDetailViewModel @Inject constructor(
                             }
 
                             is Either.Success -> {
-                                val numberOfCharacterList =
+                                val numberOfCharacterIdList =
                                     episodeResult.data.characters.map { episode ->
                                         episode.split(SLASH).last()
                                     }
-                                fetchCharacterListWithParamsUseCase.fetchCharacterListWithParams(
-                                    path = numberOfCharacterList.joinToString(SEPARATOR)
+                                fetchCharactersFromEpisodeUseCase.fetchEpisodeCharacters(
+                                    path = numberOfCharacterIdList.joinToString(SEPARATOR)
                                 ).map { characterResult ->
                                     episodeResult to characterResult
                                 }
