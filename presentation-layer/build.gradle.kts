@@ -1,8 +1,12 @@
 plugins {
-    id("kotlin-android")
-    id("com.android.library")
-    id("kotlin-kapt")
+    alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.plugin)
+    alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.compose.compiler)
 }
+
 
 android {
     namespace = "com.example.presentation"
@@ -14,49 +18,74 @@ android {
 
     }
 
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+    kapt {
+        correctErrorTypes = true
     }
-
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
 }
 
 dependencies {
 
     implementation(project(":domain-layer"))
 
-    // RETROFIT
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
-    // INTERCEPTOR
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    // Interceptor
+    implementation(libs.logging.interceptor)
+    implementation(libs.lifecycle.viewmodel.compose)
 
+    // ViewModel
+    implementation(libs.lifecycle.viewmodel.ktx)
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
-    implementation("androidx.activity:activity-compose:1.9.0")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.google.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
+    // Accompanist
+    implementation(libs.accompanist.flowlayout)
+
+    // Material
+    implementation(libs.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.material.icons.core)
+    implementation(libs.material.icons.extended)
+    implementation(libs.material)
+    implementation(libs.ui.layout)
+
+    // KotlinSerialization
+    implementation(libs.kotlinx.serialization.json)
+
+    // Coil
+    implementation(libs.coil.compose)
+
+    // Navigation
+    implementation(libs.navigation.compose)
+
+    implementation(libs.androidx.core)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.activity.compose)
+
+    androidTestImplementation(libs.google.hilt.android.testing)
+    kaptAndroidTest(libs.google.hilt.compiler)
+    testImplementation(libs.google.hilt.android.testing)
+    kaptTest(libs.google.hilt.compiler)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    debugImplementation(libs.compose.ui.tooling)
 }

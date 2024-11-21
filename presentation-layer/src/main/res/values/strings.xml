@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">presentation-layer</string>
+    <string name="reload">Reload</string>
+    <string name="empty_list">There are no items to show</string>
+    <string name="error_message">Something has gone wrong</string>
+    <string name="characters">Characters</string>
+    <string name="episodes">Episodes</string>
+    <string name="locations">Locations</string>
+    <string name="character_detail">Character Detail</string>
+    <string name="episode_detail">Episode Detail</string>
+    <string name="origin">Origin</string>
+    <string name="first_location">First Location</string>
+    <string name="last_location">Last Location</string>
+    <string name="species">Species</string>
+    <string name="status">Status</string>
+    <string name="dimension">Dimension:</string>
 </resources>

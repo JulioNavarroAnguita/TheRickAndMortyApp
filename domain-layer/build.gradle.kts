@@ -1,15 +1,20 @@
+
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("java-library")
+    alias(libs.plugins.org.jetbrains.kotlin.jvm)
+    alias(libs.plugins.java.library)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 dependencies {
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    // Dagger Hilt
+    implementation(libs.javax.inject)
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
 
 }
