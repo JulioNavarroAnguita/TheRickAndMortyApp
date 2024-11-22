@@ -10,11 +10,12 @@ gradle = "8.7.0"
 hiltNavigationCompose = "1.2.0"
 junit = "4.13.2"
 kotlin = "2.0.21"
-androidx_core = "1.13.1"
+androidx_core = "1.10.1"
+androidx_arch = "2.2.0"
 kotlinGradlePlugin = "1.6.10"
-kotlinxCoroutinesCore = "1.7.3"
+kotlinxCoroutinesCore = "1.7.0"
 kotlinxSerializationJson = "1.7.1"
-lifecycleViewmodelKtx = "2.8.6"
+lifecycleViewmodelKtx = "2.8.7"
 loggingInterceptor = "4.12.0"
 material = "1.7.4"
 material3 = "1.3.0"
@@ -24,6 +25,9 @@ ui = "1.7.5"
 uiLayout = "0.1.0-dev07"
 androidGradlePlugin = "8.1.4"
 javaxInject = "1"
+mockk = "1.13.3"
+turbine = "0.7.0"
+bytebuddy = "1.15.10"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
@@ -58,6 +62,11 @@ compose-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-layout = { module = "androidx.ui:ui-layout", version.ref = "uiLayout" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
+io-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidx_arch" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+bytebuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "bytebuddy" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

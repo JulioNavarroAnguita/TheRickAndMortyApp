@@ -1,5 +1,6 @@
 package com.example.data_layer.di
 
+import com.example.data_layer.datasource.character.CharacterLocalDataSource
 import com.example.data_layer.datasource.character.CharacterRemoteDataSource
 import com.example.data_layer.datasource.episode.EpisodeRemoteDataSource
 import com.example.data_layer.datasource.location.LocationRemoteDataSource
@@ -52,10 +53,14 @@ object Modules {
     fun provideCharacterRemoteDataSource(characterService: CharacterService) =
         CharacterRemoteDataSource(characterService = characterService)
 
+    @Provides
+    @Singleton
+    fun provideCharacterLocalDataSource() = CharacterLocalDataSource()
+
     @Singleton
     @Provides
-    fun provideCharacterRepository(characterRemoteDataSource: CharacterRemoteDataSource): CharacterRepository =
-        CharacterRepositoryImpl(characterRemoteDataSource = characterRemoteDataSource)
+    fun provideCharacterRepository(characterRemoteDataSource: CharacterRemoteDataSource, characterLocalDataSource: CharacterLocalDataSource): CharacterRepository =
+        CharacterRepositoryImpl(characterRemoteDataSource = characterRemoteDataSource, characterLocalDataSource = characterLocalDataSource)
 
     // Episode
 

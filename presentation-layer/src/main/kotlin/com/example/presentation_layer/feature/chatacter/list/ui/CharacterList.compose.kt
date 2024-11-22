@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,8 +47,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.size.Scale
+import coil.util.DebugLogger
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
@@ -147,7 +149,7 @@ fun SearchBarCharacters(onSearchClicked: (String) -> Unit) {
         ),
         onValueChange = {
             text = it
-            if (text.isNotEmpty()) expanded = true else expanded = false
+            expanded = text.isNotEmpty()
 
         },
         leadingIcon = {
@@ -194,10 +196,6 @@ fun SearchBarCharacters(onSearchClicked: (String) -> Unit) {
 @Composable
 fun BodyCharacterList(characterList: List<CharacterBo>, onClickItem: (Int) -> Unit) {
     val listState = rememberLazyListState()
-
-    LaunchedEffect(characterList) {
-        listState.scrollToItem(0)
-    }
     LazyColumn(
         state = listState,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -228,12 +226,20 @@ fun StandardCard(character: CharacterBo, onClickItem: (Int) -> Unit) {
             modifier = Modifier
                 .height(120.dp)
         ) {
+            val image = character.image
+            val imageLoader = ImageLoader.Builder(LocalContext.current)
+                .logger(DebugLogger())
+                .build()
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(character.image)
+                    .crossfade(true)
+                    .scale(Scale.FIT)
+                    .data(image)
+                    .diskCacheKey(image)
                     .error(R.drawable.error_image)
                     .build(),
                 contentDescription = null,
+                imageLoader = imageLoader,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxHeight()

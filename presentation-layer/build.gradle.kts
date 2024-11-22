@@ -80,6 +80,13 @@ dependencies {
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
 
+    testImplementation(libs.bytebuddy)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.io.mockk)
+    testImplementation(libs.core.testing)
+    testImplementation(libs.turbine)
+
+
     androidTestImplementation(libs.google.hilt.android.testing)
     kaptAndroidTest(libs.google.hilt.compiler)
     testImplementation(libs.google.hilt.android.testing)
