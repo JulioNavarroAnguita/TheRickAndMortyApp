@@ -28,6 +28,7 @@ javaxInject = "1"
 mockk = "1.13.3"
 turbine = "0.7.0"
 bytebuddy = "1.15.10"
+accompanist = "0.27.0"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
@@ -67,6 +68,7 @@ io-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidx_arch" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 bytebuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "bytebuddy" }
+accompanist = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
