@@ -76,8 +76,8 @@ dependencies {
     // Navigation
     implementation(libs.navigation.compose)
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
-
+    // accompanist
+    implementation(libs.accompanist)
 
     implementation(libs.androidx.core)
     implementation(libs.lifecycle.runtime.ktx)
