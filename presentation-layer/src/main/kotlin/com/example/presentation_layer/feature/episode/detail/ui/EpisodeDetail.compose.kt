@@ -27,8 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.size.Scale
+import coil.util.DebugLogger
 import com.example.domain_layer.model.character.CharacterBo
 import com.example.domain_layer.model.character.CharacterLocationBo
 import com.example.domain_layer.model.character.CharacterOriginBo
@@ -96,13 +99,21 @@ fun CharacterItem(character: CharacterBo) {
             .width(230.dp)
             .height(230.dp)
     ) {
+        val image = character.image
+        val imageLoader = ImageLoader.Builder(LocalContext.current)
+            .logger(DebugLogger())
+            .build()
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(character.image)
+                    .crossfade(true)
+                    .scale(Scale.FIT)
+                    .diskCacheKey(image)
                     .error(R.drawable.error_image)
                     .build(),
                 contentDescription = null,
+                imageLoader = imageLoader,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxHeight()

@@ -1,34 +1,59 @@
-package com.example.presentation_layer.feature.chatacter.list.viewmodel/*
+package com.example.presentation_layer.feature.chatacter.list.viewmodel
+
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.cash.turbine.test
+import com.example.domain_layer.model.character.CharacterBo
+import com.example.domain_layer.model.character.CharacterLocationBo
+import com.example.domain_layer.model.character.CharacterOriginBo
+import com.example.domain_layer.model.character.CharacterStatus
+import com.example.domain_layer.model.common.FailureBo
+import com.example.domain_layer.usecase.character.FetchCharacterListUseCase
+import com.example.domain_layer.utils.Either
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.junit.MockitoJUnitRunner
+
 @ExperimentalCoroutinesApi
+@RunWith(MockitoJUnitRunner::class)
 class CharacterListViewModelTest {
 
     @get:Rule
     var rule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val fetchCharacterListUseCase: FetchCharacterListUseCase = mockk()
-    private val filterCharacterUseCase: FilterCharacterUseCase = mockk()
-    private val filterCharacterListByStatusUseCase: FilterCharacterListByStatusUseCase = mockk()
+    private val fetchCharacterListUseCase: FetchCharacterListUseCase = mockk(relaxed = true)
     private lateinit var viewModel: CharacterListViewModel
+    private val testDispatcher = StandardTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
 
     @Before
     fun setUp() {
+        Dispatchers.setMain(Dispatchers.Unconfined)
         viewModel = CharacterListViewModel(
-            fetchCharacterListUseCase,
-            filterCharacterUseCase,
-            filterCharacterListByStatusUseCase
+            fetchCharacterListUseCase
         )
-        Dispatchers.setMain(Dispatchers.Unconfined)  // Configura el dispatcher para el hilo principal.
-
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()  // Restaura el dispatcher después de las pruebas.
+        Dispatchers.resetMain()
     }
 
-
     @Test
-    fun fetchCharacterList_emitsDataState_whenFetchIsSuccessful() = runTest {
+    fun fetchCharacterListEmitsDataStateWhenFetchIsSuccessful() = testScope.runTest {
+        // Given
         val characters = listOf(
             CharacterBo(
                 created = "",
@@ -51,22 +76,27 @@ class CharacterListViewModelTest {
                 url = "https://www.google.com/#q=veri",
             )
         )
-        coEvery { fetchCharacterListUseCase.fetchCharacterList() } returns flow {
+        // When
+        coEvery { fetchCharacterListUseCase.fetchCharacterList(any()) } returns flow {
             emit(Either.Success(data = characters))
         }
 
+        // Then
         viewModel.state.test {
-            assert(awaitItem() is CharacterListState.Loading)  // Verificando el estado de carga
+            viewModel.fetchCharacterList()
+            assert(awaitItem() is CharacterListState.Loading)
             val dataState = awaitItem() as CharacterListState.Data
-            assert(dataState.characters == characters)  // Verificando que los personajes coincidan
-            cancelAndIgnoreRemainingEvents()  // Aseguramos que no hay más eventos pendientes
+            assert(dataState.characters == characters)
         }
     }
 
 
     @Test
-    fun fetchCharacterList_emitsErrorState_whenFetchFails() = runTest {
-        coEvery { fetchCharacterListUseCase.fetchCharacterList() } returns flow {
+    fun fetchCharacterListEmitsErrorStateWhenFetchFails() = testScope.runTest {
+        // Given
+
+        // When
+        coEvery { fetchCharacterListUseCase.fetchCharacterList(any()) } returns flow {
             emit(
                 Either.Error(
                     error = FailureBo.ServerError(
@@ -76,10 +106,11 @@ class CharacterListViewModelTest {
                 )
             )
         }
-
+        // Then
         viewModel.state.test {
+            viewModel.fetchCharacterList()
             assert(awaitItem() is CharacterListState.Loading)
             assert((awaitItem() as CharacterListState.Error).message == "Error to load characters")
         }
     }
-}*/
+}
