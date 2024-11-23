@@ -16,6 +16,7 @@ fun Modifier.debounce(
     debounceTime: Long = 1000L,
     onClick: () -> Unit
 ): Modifier {
+
     var isClickable by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
 
